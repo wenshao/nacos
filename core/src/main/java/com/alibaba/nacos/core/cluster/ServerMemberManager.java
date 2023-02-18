@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.core.cluster;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.ability.ServerAbilities;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.auth.util.AuthHeaderUtil;
@@ -32,7 +33,6 @@ import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.notify.listener.Subscriber;
 import com.alibaba.nacos.common.utils.ConcurrentHashSet;
 import com.alibaba.nacos.common.utils.ExceptionUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.common.utils.VersionUtils;
 import com.alibaba.nacos.core.ability.ServerAbilityInitializer;
@@ -573,7 +573,7 @@ public class ServerMemberManager implements ApplicationListener<WebServerInitial
                 return;
             }
             try {
-                Member member = JacksonUtils.toObj(reportResult, Member.class);
+                Member member = JSON.parseObject(reportResult, Member.class);
                 MemberUtil.onSuccess(ServerMemberManager.this, target, member);
             } catch (Exception e) {
                 Loggers.CLUSTER.warn("Receive invalid report result from target {}, context {}", target.getAddress(),

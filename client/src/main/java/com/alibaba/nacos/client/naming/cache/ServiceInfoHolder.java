@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.client.naming.cache;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
@@ -28,7 +29,6 @@ import com.alibaba.nacos.client.naming.event.InstancesChangeEvent;
 import com.alibaba.nacos.common.lifecycle.Closeable;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.utils.ConvertUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 
 import java.io.File;
@@ -138,7 +138,7 @@ public class ServiceInfoHolder implements Closeable {
      * @return service info
      */
     public ServiceInfo processServiceInfo(String json) {
-        ServiceInfo serviceInfo = JacksonUtils.toObj(json, ServiceInfo.class);
+        ServiceInfo serviceInfo = JSON.parseObject(json, ServiceInfo.class);
         serviceInfo.setJsonFromServer(json);
         return processServiceInfo(serviceInfo);
     }
@@ -162,12 +162,12 @@ public class ServiceInfoHolder implements Closeable {
         serviceInfoMap.put(serviceInfo.getKey(), serviceInfo);
         boolean changed = isChangedServiceInfo(oldService, serviceInfo);
         if (StringUtils.isBlank(serviceInfo.getJsonFromServer())) {
-            serviceInfo.setJsonFromServer(JacksonUtils.toJson(serviceInfo));
+            serviceInfo.setJsonFromServer(JSON.toJSONString(serviceInfo));
         }
         MetricsMonitor.getServiceInfoMapSizeMonitor().set(serviceInfoMap.size());
         if (changed) {
             NAMING_LOGGER.info("current ips:({}) service: {} -> {}", serviceInfo.ipCount(), serviceInfo.getKey(),
-                    JacksonUtils.toJson(serviceInfo.getHosts()));
+                    JSON.toJSONString(serviceInfo.getHosts()));
             NotifyCenter.publishEvent(new InstancesChangeEvent(notifierEventScope, serviceInfo.getName(), serviceInfo.getGroupName(),
                     serviceInfo.getClusters(), serviceInfo.getHosts()));
             DiskCache.write(serviceInfo, cacheDir);
@@ -182,7 +182,7 @@ public class ServiceInfoHolder implements Closeable {
     private boolean isChangedServiceInfo(ServiceInfo oldService, ServiceInfo newService) {
         if (null == oldService) {
             NAMING_LOGGER.info("init new ips({}) service: {} -> {}", newService.ipCount(), newService.getKey(),
-                    JacksonUtils.toJson(newService.getHosts()));
+                    JSON.toJSONString(newService.getHosts()));
             return true;
         }
         if (oldService.getLastRefTime() > newService.getLastRefTime()) {
@@ -233,19 +233,19 @@ public class ServiceInfoHolder implements Closeable {
         if (newHosts.size() > 0) {
             changed = true;
             NAMING_LOGGER.info("new ips({}) service: {} -> {}", newHosts.size(), newService.getKey(),
-                    JacksonUtils.toJson(newHosts));
+                    JSON.toJSONString(newHosts));
         }
         
         if (remvHosts.size() > 0) {
             changed = true;
             NAMING_LOGGER.info("removed ips({}) service: {} -> {}", remvHosts.size(), newService.getKey(),
-                    JacksonUtils.toJson(remvHosts));
+                    JSON.toJSONString(remvHosts));
         }
         
         if (modHosts.size() > 0) {
             changed = true;
             NAMING_LOGGER.info("modified ips({}) service: {} -> {}", modHosts.size(), newService.getKey(),
-                    JacksonUtils.toJson(modHosts));
+                    JSON.toJSONString(modHosts));
         }
         return changed;
     }

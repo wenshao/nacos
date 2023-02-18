@@ -16,10 +16,8 @@
 
 package com.alibaba.nacos.api.naming.pojo;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.alibaba.nacos.api.common.Constants;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -32,10 +30,9 @@ import java.util.List;
  * @author nkorange
  * @author shizhengxing
  */
-@JsonInclude(Include.NON_NULL)
 public class ServiceInfo {
     
-    @JsonIgnore
+    @JSONField(serialize = false, deserialize = false)
     private String jsonFromServer = EMPTY;
     
     private static final String EMPTY = "";
@@ -200,7 +197,7 @@ public class ServiceInfo {
         return !validHosts.isEmpty();
     }
     
-    @JsonIgnore
+    @JSONField(serialize = false)
     public String getJsonFromServer() {
         return jsonFromServer;
     }
@@ -208,14 +205,14 @@ public class ServiceInfo {
     public void setJsonFromServer(String jsonFromServer) {
         this.jsonFromServer = jsonFromServer;
     }
-    
-    @JsonIgnore
+
+    @JSONField(serialize = false)
     public String getKey() {
         String serviceName = getGroupedServiceName();
         return getKey(serviceName, clusters);
     }
-    
-    @JsonIgnore
+
+    @JSONField(serialize = false)
     public static String getKey(String name, String clusters) {
         
         if (!isEmpty(clusters)) {
@@ -224,8 +221,8 @@ public class ServiceInfo {
         
         return name;
     }
-    
-    @JsonIgnore
+
+    @JSONField(serialize = false)
     public String getKeyEncoded() {
         String serviceName = getGroupedServiceName();
         try {

@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.common.http.handler;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -29,14 +29,14 @@ import java.lang.reflect.Type;
 public final class ResponseHandler {
     
     public static <T> T convert(String s, Class<T> cls) throws Exception {
-        return JacksonUtils.toObj(s, cls);
+        return JSON.parseObject(s, cls);
     }
     
     public static <T> T convert(String s, Type type) throws Exception {
-        return JacksonUtils.toObj(s, type);
+        return JSON.parseObject(s, type);
     }
     
     public static <T> T convert(InputStream inputStream, Type type) throws Exception {
-        return JacksonUtils.toObj(inputStream, type);
+        return JSON.parseObject(inputStream, type);
     }
 }

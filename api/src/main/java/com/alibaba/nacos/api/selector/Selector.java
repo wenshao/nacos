@@ -17,8 +17,8 @@
 
 package com.alibaba.nacos.api.selector;
 
+import com.alibaba.fastjson2.annotation.JSONType;
 import com.alibaba.nacos.api.exception.NacosException;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
 
@@ -36,7 +36,7 @@ import java.io.Serializable;
  * @author chenglu
  * @date 2021-07-09 21:24
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JSONType(typeKey = "TYPE")
 public interface Selector<R, C, E> extends Serializable {
     
     /**

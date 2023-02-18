@@ -16,6 +16,9 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
@@ -27,7 +30,6 @@ import com.alibaba.nacos.common.model.RestResultUtils;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.trace.event.naming.DeregisterServiceTraceEvent;
 import com.alibaba.nacos.common.trace.event.naming.RegisterServiceTraceEvent;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.NumberUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.core.utils.WebUtils;
@@ -42,8 +44,6 @@ import com.alibaba.nacos.naming.selector.NoneSelector;
 import com.alibaba.nacos.naming.selector.SelectorManager;
 import com.alibaba.nacos.naming.utils.ServiceUtil;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -138,8 +138,8 @@ public class ServiceController {
      */
     @GetMapping
     @Secured(action = ActionTypes.READ)
-    public ObjectNode detail(@RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
-            @RequestParam String serviceName) throws NacosException {
+    public JSONObject detail(@RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
+                             @RequestParam String serviceName) throws NacosException {
         return getServiceOperator().queryService(namespaceId, serviceName);
     }
     
@@ -152,17 +152,16 @@ public class ServiceController {
      */
     @GetMapping("/list")
     @Secured(action = ActionTypes.READ)
-    public ObjectNode list(HttpServletRequest request) throws Exception {
+    public JSONObject list(HttpServletRequest request) throws Exception {
         final int pageNo = NumberUtils.toInt(WebUtils.required(request, "pageNo"));
         final int pageSize = NumberUtils.toInt(WebUtils.required(request, "pageSize"));
         String namespaceId = WebUtils.optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
         String groupName = WebUtils.optional(request, CommonParams.GROUP_NAME, Constants.DEFAULT_GROUP);
         String selectorString = WebUtils.optional(request, "selector", StringUtils.EMPTY);
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         Collection<String> serviceNameList = getServiceOperator().listService(namespaceId, groupName, selectorString);
         result.put("count", serviceNameList.size());
-        result.replace("doms",
-                JacksonUtils.transferToJsonNode(ServiceUtil.pageServiceName(pageNo, pageSize, serviceNameList)));
+        result.put("doms", ServiceUtil.pageServiceName(pageNo, pageSize, serviceNameList));
         return result;
         
     }
@@ -200,7 +199,7 @@ public class ServiceController {
      */
     @RequestMapping("/names")
     @Secured(action = ActionTypes.READ)
-    public ObjectNode searchService(@RequestParam(defaultValue = StringUtils.EMPTY) String namespaceId,
+    public JSONObject searchService(@RequestParam(defaultValue = StringUtils.EMPTY) String namespaceId,
             @RequestParam(defaultValue = StringUtils.EMPTY) String expr) throws NacosException {
         Map<String, Collection<String>> serviceNameMap = new HashMap<>(16);
         int totalCount = 0;
@@ -215,10 +214,10 @@ public class ServiceController {
                 totalCount += names.size();
             }
         }
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
-        result.replace("META-INF/services", JacksonUtils.transferToJsonNode(serviceNameMap));
-        result.put("count", totalCount);
-        return result;
+        return JSONObject.of(
+                "META-INF/services", serviceNameMap,
+                "count", totalCount
+        );
     }
     
     /**
@@ -229,7 +228,7 @@ public class ServiceController {
      */
     @GetMapping("/subscribers")
     @Secured(action = ActionTypes.READ)
-    public ObjectNode subscribers(HttpServletRequest request) {
+    public JSONObject subscribers(HttpServletRequest request) {
         
         int pageNo = NumberUtils.toInt(WebUtils.optional(request, "pageNo", "1"));
         int pageSize = NumberUtils.toInt(WebUtils.optional(request, "pageSize", "1000"));
@@ -238,8 +237,8 @@ public class ServiceController {
         String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
         boolean aggregation = Boolean
                 .parseBoolean(WebUtils.optional(request, "aggregation", String.valueOf(Boolean.TRUE)));
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+
+        JSONObject result = new JSONObject();
         
         int count = 0;
         
@@ -257,13 +256,13 @@ public class ServiceController {
                 end = count;
             }
             
-            result.replace("subscribers", JacksonUtils.transferToJsonNode(subscribers.subList(start, end)));
+            result.put("subscribers", subscribers.subList(start, end));
             result.put("count", count);
             
             return result;
         } catch (Exception e) {
             Loggers.SRV_LOG.warn("query subscribers failed!", e);
-            result.replace("subscribers", JacksonUtils.createEmptyArrayNode());
+            result.put("subscribers", new JSONArray());
             result.put("count", count);
             return result;
         }
@@ -284,11 +283,10 @@ public class ServiceController {
             return new NoneSelector();
         }
         
-        JsonNode selectorJson = JacksonUtils.toObj(URLDecoder.decode(selectorJsonString, "UTF-8"));
-        String type = Optional.ofNullable(selectorJson.get("type"))
-                .orElseThrow(() -> new NacosException(NacosException.INVALID_PARAM, "not match any type of selector!"))
-                .asText();
-        String expression = Optional.ofNullable(selectorJson.get("expression")).map(JsonNode::asText).orElse(null);
+        JSONObject selectorJson = JSON.parseObject(URLDecoder.decode(selectorJsonString, "UTF-8"));
+        String type = Optional.ofNullable(selectorJson.getString("type"))
+                .orElseThrow(() -> new NacosException(NacosException.INVALID_PARAM, "not match any type of selector!"));
+        String expression = selectorJson.getString("expression");
         Selector selector = selectorManager.parseSelector(type, expression);
         if (Objects.isNull(selector)) {
             throw new NacosException(NacosException.INVALID_PARAM, "not match any type of selector!");

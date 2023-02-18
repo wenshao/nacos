@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.config.server.service.repository.embedded;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.exception.runtime.NacosRuntimeException;
 import com.alibaba.nacos.common.JustForTest;
@@ -25,7 +26,6 @@ import com.alibaba.nacos.common.notify.Event;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.notify.listener.Subscriber;
 import com.alibaba.nacos.common.utils.ExceptionUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.LoggerUtils;
 import com.alibaba.nacos.common.utils.MD5Utils;
 import com.alibaba.nacos.common.utils.Preconditions;
@@ -559,14 +559,14 @@ public class DistributedDatabaseOperateImpl extends RequestProcessor4CP implemen
         if (extendInfo.containsKey(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT)) {
             String jsonVal = extendInfo.get(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT);
             if (StringUtils.isNotBlank(jsonVal)) {
-                NotifyCenter.publishEvent(JacksonUtils.toObj(jsonVal, ConfigDumpEvent.class));
+                NotifyCenter.publishEvent(JSON.parseObject(jsonVal, ConfigDumpEvent.class));
             }
             return;
         }
         if (extendInfo.containsKey(Constants.EXTEND_INFOS_CONFIG_DUMP_EVENT)) {
             String jsonVal = extendInfo.get(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT);
             if (StringUtils.isNotBlank(jsonVal)) {
-                List<ConfigDumpEvent> list = JacksonUtils.toObj(jsonVal, new GenericType<List<ConfigDumpEvent>>() {
+                List<ConfigDumpEvent> list = JSON.parseObject(jsonVal, new GenericType<List<ConfigDumpEvent>>() {
                 }.getType());
                 list.stream().filter(Objects::nonNull).forEach(NotifyCenter::publishEvent);
             }

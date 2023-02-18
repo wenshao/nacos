@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.config.server.controller;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.model.SampleResult;
 import com.alibaba.nacos.config.server.remote.ConfigChangeListenContext;
@@ -113,7 +113,7 @@ public class CommunicationControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(Constants.COMMUNICATION_CONTROLLER_PATH + "/configWatchers")
                 .param("dataId", "test").param("group", "test").param("tenant", "test");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        Assert.assertEquals("{\"test\":\"test\"}", JacksonUtils.toObj(actualValue).get("lisentersGroupkeyStatus").toString());
+        Assert.assertEquals("{\"test\":\"test\"}", JSON.parseObject(actualValue).get("lisentersGroupkeyStatus").toString());
     }
     
     @Test
@@ -135,7 +135,7 @@ public class CommunicationControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(Constants.COMMUNICATION_CONTROLLER_PATH + "/configWatchers")
                 .param("dataId", "test").param("group", "test").param("tenant", "test");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        Assert.assertEquals("{\"127.0.0.1\":\"md5\"}", JacksonUtils.toObj(actualValue).get("lisentersGroupkeyStatus").toString());
+        Assert.assertEquals("{\"127.0.0.1\":\"md5\"}", JSON.parseObject(actualValue).get("lisentersGroupkeyStatus").toString());
     }
     
     @Test
@@ -157,7 +157,7 @@ public class CommunicationControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(Constants.COMMUNICATION_CONTROLLER_PATH + "/watcherConfigs")
                 .param("ip", ip);
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        Assert.assertEquals("{\"test\":\"test\"}", JacksonUtils.toObj(actualValue).get("lisentersGroupkeyStatus").toString());
+        Assert.assertEquals("{\"test\":\"test\"}", JSON.parseObject(actualValue).get("lisentersGroupkeyStatus").toString());
     
     }
 }

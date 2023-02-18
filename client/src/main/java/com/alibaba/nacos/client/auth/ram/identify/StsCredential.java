@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.client.auth.ram.identify;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 import java.util.Date;
 
@@ -27,22 +27,22 @@ import java.util.Date;
  */
 public class StsCredential {
     
-    @JsonProperty(value = "AccessKeyId")
+    @JSONField(name = "AccessKeyId")
     private String accessKeyId;
     
-    @JsonProperty(value = "AccessKeySecret")
+    @JSONField(name = "AccessKeySecret")
     private String accessKeySecret;
     
-    @JsonProperty(value = "Expiration")
+    @JSONField(name = "Expiration")
     private Date expiration;
     
-    @JsonProperty(value = "SecurityToken")
+    @JSONField(name = "SecurityToken")
     private String securityToken;
     
-    @JsonProperty(value = "LastUpdated")
+    @JSONField(name = "LastUpdated")
     private Date lastUpdated;
     
-    @JsonProperty(value = "Code")
+    @JSONField(name = "Code")
     private String code;
     
     public String getAccessKeyId() {

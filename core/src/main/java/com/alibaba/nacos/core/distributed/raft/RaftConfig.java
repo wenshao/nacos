@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.core.distributed.raft;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.consistency.Config;
 import com.alibaba.nacos.consistency.cp.RequestProcessor4CP;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -98,7 +98,7 @@ public class RaftConfig implements Config<RequestProcessor4CP> {
     @Override
     public String toString() {
         try {
-            return JacksonUtils.toJson(data);
+            return JSON.toJSONString(data);
         } catch (Exception e) {
             return String.valueOf(data);
         }

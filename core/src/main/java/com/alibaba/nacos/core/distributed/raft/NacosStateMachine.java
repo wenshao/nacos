@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.core.distributed.raft;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.utils.ExceptionUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.LoggerUtils;
 import com.alibaba.nacos.consistency.RequestProcessor;
 import com.alibaba.nacos.consistency.ProtoMessageUtil;
@@ -299,7 +299,7 @@ class NacosStateMachine extends StateMachineAdapter {
                         if (bytes == null || bytes.length == 0) {
                             fileMeta = new LocalFileMeta();
                         } else {
-                            fileMeta = JacksonUtils.toObj(bytes, LocalFileMeta.class);
+                            fileMeta = JSON.parseObject(bytes, LocalFileMeta.class);
                         }
                         
                         metaMap.put(fileName, fileMeta);

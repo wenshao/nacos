@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.client.naming.backups;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.client.naming.cache.ConcurrentDiskUtil;
@@ -24,7 +25,6 @@ import com.alibaba.nacos.client.naming.cache.ServiceInfoHolder;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.alibaba.nacos.client.naming.utils.UtilAndComs;
 import com.alibaba.nacos.common.lifecycle.Closeable;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.common.utils.ThreadUtils;
 
@@ -218,7 +218,7 @@ public class FailoverReactor implements Closeable {
                         String json;
                         if ((json = reader.readLine()) != null) {
                             try {
-                                dom = JacksonUtils.toObj(json, ServiceInfo.class);
+                                dom = JSON.parseObject(json, ServiceInfo.class);
                             } catch (Exception e) {
                                 NAMING_LOGGER.error("[NA] error while parsing cached dom : {}", json, e);
                             }

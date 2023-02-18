@@ -16,8 +16,9 @@
 
 package com.alibaba.nacos.config.server.controller;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.nacos.common.http.param.MediaType;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.controller.parameters.SameNamespaceCloneConfigBean;
 import com.alibaba.nacos.config.server.model.ConfigAdvanceInfo;
@@ -34,7 +35,6 @@ import com.alibaba.nacos.config.server.service.repository.ConfigInfoBetaPersistS
 import com.alibaba.nacos.config.server.service.repository.ConfigInfoPersistService;
 import com.alibaba.nacos.config.server.utils.ZipUtils;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -146,7 +146,7 @@ public class ConfigControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        ConfigAllInfo resConfigAllInfo = JacksonUtils.toObj(actualValue, ConfigAllInfo.class);
+        ConfigAllInfo resConfigAllInfo = JSON.parseObject(actualValue, ConfigAllInfo.class);
         
         Assert.assertEquals(configAllInfo.getDataId(), resConfigAllInfo.getDataId());
         Assert.assertEquals(configAllInfo.getGroup(), resConfigAllInfo.getGroup());
@@ -172,8 +172,8 @@ public class ConfigControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
         Assert.assertEquals("200", code);
         Assert.assertEquals("true", data);
     }
@@ -193,9 +193,9 @@ public class ConfigControllerTest {
                 .param("tenant", "");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
-        ConfigAdvanceInfo resConfigAdvanceInfo = JacksonUtils.toObj(data, ConfigAdvanceInfo.class);
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
+        ConfigAdvanceInfo resConfigAdvanceInfo = JSON.parseObject(data, ConfigAdvanceInfo.class);
         
         Assert.assertEquals("200", code);
         Assert.assertEquals(configAdvanceInfo.getCreateIp(), resConfigAdvanceInfo.getCreateIp());
@@ -225,8 +225,7 @@ public class ConfigControllerTest {
                 .param("tenant", "").param("sampleTime", "1");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        GroupkeyListenserStatus groupkeyListenserStatus = JacksonUtils
-                .toObj(actualValue, GroupkeyListenserStatus.class);
+        GroupkeyListenserStatus groupkeyListenserStatus = JSON.parseObject(actualValue, GroupkeyListenserStatus.class);
         Assert.assertEquals(200, groupkeyListenserStatus.getCollectStatus());
         Assert.assertEquals(1, groupkeyListenserStatus.getLisentersGroupkeyStatus().size());
         Assert.assertEquals("test", groupkeyListenserStatus.getLisentersGroupkeyStatus().get("test"));
@@ -254,11 +253,10 @@ public class ConfigControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        JsonNode pageItemsNode = JacksonUtils.toObj(actualValue).get("pageItems");
-        List resultList = JacksonUtils.toObj(pageItemsNode.toString(), List.class);
-        ConfigInfo resConfigInfo = JacksonUtils.toObj(pageItemsNode.get(0).toString(), ConfigInfo.class);
+        JSONArray pageItemsNode = JSON.parseObject(actualValue).getJSONArray("pageItems");
+        ConfigInfo resConfigInfo = pageItemsNode.getObject(0, ConfigInfo.class);
         
-        Assert.assertEquals(configInfoList.size(), resultList.size());
+        Assert.assertEquals(configInfoList.size(), pageItemsNode.size());
         Assert.assertEquals(configInfo.getDataId(), resConfigInfo.getDataId());
         Assert.assertEquals(configInfo.getGroup(), resConfigInfo.getGroup());
         Assert.assertEquals(configInfo.getContent(), resConfigInfo.getContent());
@@ -287,9 +285,8 @@ public class ConfigControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        List resultList = JacksonUtils.toObj(JacksonUtils.toObj(actualValue).get("pageItems").toString(), List.class);
-        ConfigInfo resConfigInfo = JacksonUtils
-                .toObj(JacksonUtils.toObj(actualValue).get("pageItems").get(0).toString(), ConfigInfo.class);
+        List resultList = JSON.parseObject(JSON.parseObject(actualValue).get("pageItems").toString(), List.class);
+        ConfigInfo resConfigInfo = JSON.parseObject(actualValue).getJSONArray("pageItems").getObject(0, ConfigInfo.class);
         
         Assert.assertEquals(configInfoList.size(), resultList.size());
         Assert.assertEquals(configInfo.getDataId(), resConfigInfo.getDataId());
@@ -305,8 +302,8 @@ public class ConfigControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
         Assert.assertEquals("200", code);
         Assert.assertEquals("true", data);
     }
@@ -325,9 +322,9 @@ public class ConfigControllerTest {
                 .param("beta", "true").param("dataId", "test").param("group", "test").param("tenant", "");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
-        ConfigInfoBetaWrapper resConfigInfoBetaWrapper = JacksonUtils.toObj(data, ConfigInfoBetaWrapper.class);
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
+        ConfigInfoBetaWrapper resConfigInfoBetaWrapper = JSON.parseObject(data, ConfigInfoBetaWrapper.class);
         
         Assert.assertEquals("200", code);
         Assert.assertEquals(configInfoBetaWrapper.getDataId(), resConfigInfoBetaWrapper.getDataId());
@@ -382,10 +379,9 @@ public class ConfigControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
         Assert.assertEquals("200", code);
-        Map<String, Object> resultMap = JacksonUtils
-                .toObj(JacksonUtils.toObj(actualValue).get("data").toString(), Map.class);
+        Map<String, Object> resultMap = JSON.parseObject(actualValue).getJSONObject("data");
         Assert.assertEquals(map.get("test"), resultMap.get("test").toString());
         
         zipUtilsMockedStatic.close();
@@ -422,14 +418,13 @@ public class ConfigControllerTest {
         
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.post(Constants.CONFIG_CONTROLLER_PATH)
                 .param("clone", "true").param("src_user", "test").param("tenant", "public").param("policy", "ABORT")
-                .content(JacksonUtils.toJson(configBeansList)).contentType(MediaType.APPLICATION_JSON);
+                .content(JSON.toJSONString(configBeansList)).contentType(MediaType.APPLICATION_JSON);
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
         Assert.assertEquals("200", code);
-        Map<String, Object> resultMap = JacksonUtils
-                .toObj(JacksonUtils.toObj(actualValue).get("data").toString(), Map.class);
+        Map<String, Object> resultMap = JSON.parseObject(actualValue).getJSONObject("data");
         Assert.assertEquals(map.get("test"), resultMap.get("test").toString());
     }
 }

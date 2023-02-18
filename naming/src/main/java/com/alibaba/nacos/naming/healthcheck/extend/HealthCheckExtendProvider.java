@@ -68,7 +68,6 @@ public class HealthCheckExtendProvider {
                         "More than one healthChecker of the same type was found : [type=\"" + type + "\"]");
             }
             healthCheckerType.add(type);
-            HealthCheckType.registerHealthChecker(checker.getType(), checker.getClass());
         }
         if (!processorType.equals(healthCheckerType)) {
             throw new RuntimeException(

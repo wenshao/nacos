@@ -17,8 +17,8 @@
 
 package com.alibaba.nacos.core.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.model.RestResult;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.core.cluster.Member;
 import com.alibaba.nacos.core.cluster.NodeState;
 import com.alibaba.nacos.core.cluster.ServerMemberManager;
@@ -108,7 +108,7 @@ public class NacosClusterControllerTest {
         member.setPort(8848);
         member.setAddress("test");
         RestResult<String> result = nacosClusterController.report(member);
-        String expected = JacksonUtils.toJson(self);
+        String expected = JSON.toJSONString(self);
         assertEquals(expected, result.getData());
     }
     

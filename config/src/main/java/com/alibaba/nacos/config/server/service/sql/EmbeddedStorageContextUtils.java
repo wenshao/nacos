@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.config.server.service.sql;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.model.ConfigInfo;
@@ -95,7 +95,7 @@ public class EmbeddedStorageContextUtils {
                     .lastModifiedTs(time.getTime()).encryptedDataKey(configInfo.getEncryptedDataKey()).build();
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JacksonUtils.toJson(event));
+            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JSON.toJSONString(event));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }
@@ -117,7 +117,7 @@ public class EmbeddedStorageContextUtils {
                     .lastModifiedTs(time.getTime()).encryptedDataKey(configInfo.getEncryptedDataKey()).build();
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JacksonUtils.toJson(event));
+            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JSON.toJSONString(event));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }
@@ -139,7 +139,7 @@ public class EmbeddedStorageContextUtils {
                     .lastModifiedTs(time.getTime()).build();
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JacksonUtils.toJson(event));
+            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JSON.toJSONString(event));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }
@@ -161,7 +161,7 @@ public class EmbeddedStorageContextUtils {
                     .dataId(dataId).isBeta(false).handleIp(srcIp).lastModifiedTs(time.getTime()).build();
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JacksonUtils.toJson(event));
+            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JSON.toJSONString(event));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }
@@ -185,7 +185,7 @@ public class EmbeddedStorageContextUtils {
             }
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFOS_CONFIG_DUMP_EVENT, JacksonUtils.toJson(events));
+            extendInfo.put(Constants.EXTEND_INFOS_CONFIG_DUMP_EVENT, JSON.toJSONString(events));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }
@@ -205,7 +205,7 @@ public class EmbeddedStorageContextUtils {
                     .group(group).isBeta(true).build();
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JacksonUtils.toJson(event));
+            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JSON.toJSONString(event));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }
@@ -227,7 +227,7 @@ public class EmbeddedStorageContextUtils {
                     .dataId(dataId).isBeta(true).tag(tag).handleIp(srcIp).build();
             
             Map<String, String> extendInfo = new HashMap<>(2);
-            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JacksonUtils.toJson(event));
+            extendInfo.put(Constants.EXTEND_INFO_CONFIG_DUMP_EVENT, JSON.toJSONString(event));
             EmbeddedStorageContextUtils.putAllExtendInfo(extendInfo);
         }
     }

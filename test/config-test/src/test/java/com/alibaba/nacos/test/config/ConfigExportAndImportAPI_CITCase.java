@@ -16,6 +16,9 @@
 
 package com.alibaba.nacos.test.config;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.Nacos;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.client.config.http.HttpAgent;
@@ -28,14 +31,12 @@ import com.alibaba.nacos.common.http.client.handler.AbstractResponseHandler;
 import com.alibaba.nacos.common.http.client.response.HttpClientResponse;
 import com.alibaba.nacos.common.http.param.Header;
 import com.alibaba.nacos.common.http.param.Query;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.model.ConfigMetadata;
 import com.alibaba.nacos.config.server.result.code.ResultCodeEnum;
 import com.alibaba.nacos.config.server.utils.YamlParserUtil;
 import com.alibaba.nacos.config.server.utils.ZipUtils;
 import com.alibaba.nacos.test.base.ConfigCleanUtils;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -210,20 +211,20 @@ public class ConfigExportAndImportAPI_CITCase {
     public void testExportByIds() {
         String getDataUrl = "?search=accurate&dataId=&group=&appName=&config_tags=&pageNo=1&pageSize=10&tenant=&namespaceId=";
         String queryResult = httpGetString(serverAddr + CONFIG_CONTROLLER_PATH + getDataUrl, null);
-        JsonNode resultObj = JacksonUtils.toObj(queryResult);
-        JsonNode resultConfigs = resultObj.get("pageItems");
-        JsonNode config1 = resultConfigs.get(0);
-        JsonNode config2 = resultConfigs.get(1);
-        String id1 = config1.get("id").asText();
-        String id2 = config2.get("id").asText();
+        JSONObject resultObj = JSON.parseObject(queryResult);
+        JSONArray resultConfigs = resultObj.getJSONArray("pageItems");
+        JSONObject config1 = resultConfigs.getJSONObject(0);
+        JSONObject config2 = resultConfigs.getJSONObject(1);
+        String id1 = config1.getString("id");
+        String id2 = config2.getString("id");
         String exportByIdsUrl = "?export=true&tenant=&group=&appName=&ids=" + id1 + "," + id2;
         System.out.println(exportByIdsUrl);
         byte[] zipData = httpGetBytes(serverAddr + CONFIG_CONTROLLER_PATH + exportByIdsUrl, null);
         ZipUtils.UnZipResult unZiped = ZipUtils.unzip(zipData);
         List<ZipUtils.ZipItem> zipItemList = unZiped.getZipItemList();
         Assert.assertEquals(2, zipItemList.size());
-        String config1Name = config1.get("group").textValue() + "/" + config1.get("dataId").textValue();
-        String config2Name = config2.get("group").textValue() + "/" + config2.get("dataId").textValue();
+        String config1Name = config1.getString("group") + "/" + config1.getString("dataId");
+        String config2Name = config2.getString("group") + "/" + config2.getString("dataId");
         for (ZipUtils.ZipItem zipItem : zipItemList) {
             if (!(config1Name.equals(zipItem.getItemName()) || config2Name.equals(zipItem.getItemName()))) {
                 Assert.fail();
@@ -235,18 +236,18 @@ public class ConfigExportAndImportAPI_CITCase {
     public void testExportByGroup() {
         String getDataUrl = "?search=accurate&dataId=&group=EXPORT_IMPORT_TEST_GROUP&appName=&config_tags=&pageNo=1&pageSize=10&tenant=&namespaceId=";
         String queryResult = httpGetString(serverAddr + CONFIG_CONTROLLER_PATH + getDataUrl, null);
-        JsonNode resultObj = JacksonUtils.toObj(queryResult);
-        JsonNode resultConfigs = resultObj.get("pageItems");
+        JSONObject resultObj = JSON.parseObject(queryResult);
+        JSONArray resultConfigs = resultObj.getJSONArray("pageItems");
         Assert.assertEquals(2, resultConfigs.size());
-        JsonNode config1 = resultConfigs.get(0);
-        JsonNode config2 = resultConfigs.get(1);
+        JSONObject config1 = resultConfigs.getJSONObject(0);
+        JSONObject config2 = resultConfigs.getJSONObject(1);
         String exportByIdsUrl = "?export=true&tenant=&group=EXPORT_IMPORT_TEST_GROUP&appName=&ids=";
         byte[] zipData = httpGetBytes(serverAddr + CONFIG_CONTROLLER_PATH + exportByIdsUrl, null);
         ZipUtils.UnZipResult unZiped = ZipUtils.unzip(zipData);
         List<ZipUtils.ZipItem> zipItemList = unZiped.getZipItemList();
         Assert.assertEquals(2, zipItemList.size());
-        String config1Name = config1.get("group").textValue() + "/" + config1.get("dataId").textValue();
-        String config2Name = config2.get("group").textValue() + "/" + config2.get("dataId").textValue();
+        String config1Name = config1.getString("group") + "/" + config1.getString("dataId");
+        String config2Name = config2.getString("group") + "/" + config2.getString("dataId");
         
         for (ZipUtils.ZipItem zipItem : zipItemList) {
             if (!(config1Name.equals(zipItem.getItemName()) || config2Name.equals(zipItem.getItemName()))) {
@@ -266,16 +267,16 @@ public class ConfigExportAndImportAPI_CITCase {
         String getDataUrl = "?search=accurate&dataId=&group=EXPORT_IMPORT_TEST_GROUP&appName=testApp1&config_tags="
                 + "&pageNo=1&pageSize=10&tenant=&namespaceId=";
         String queryResult = httpGetString(serverAddr + CONFIG_CONTROLLER_PATH + getDataUrl, null);
-        JsonNode resultObj = JacksonUtils.toObj(queryResult);
-        JsonNode resultConfigs = resultObj.get("pageItems");
+        JSONObject resultObj = JSON.parseObject(queryResult);
+        JSONArray resultConfigs = resultObj.getJSONArray("pageItems");
         Assert.assertEquals(1, resultConfigs.size());
-        JsonNode config1 = resultConfigs.get(0);
+        JSONObject config1 = resultConfigs.getJSONObject(0);
         String exportByIdsUrl = "?export=true&tenant=&group=EXPORT_IMPORT_TEST_GROUP&appName=testApp1&ids=";
         byte[] zipData = httpGetBytes(serverAddr + CONFIG_CONTROLLER_PATH + exportByIdsUrl, null);
         ZipUtils.UnZipResult unZiped = ZipUtils.unzip(zipData);
         List<ZipUtils.ZipItem> zipItemList = unZiped.getZipItemList();
         Assert.assertEquals(1, zipItemList.size());
-        String config1Name = config1.get("group").textValue() + "/" + config1.get("dataId").textValue();
+        String config1Name = config1.getString("group") + "/" + config1.getString("dataId");
         for (ZipUtils.ZipItem zipItem : zipItemList) {
             if (!config1Name.equals(zipItem.getItemName())) {
                 Assert.fail();
@@ -333,31 +334,31 @@ public class ConfigExportAndImportAPI_CITCase {
         System.out.println("importResult: " + importResult);
         
         // test unrecognizedData
-        JsonNode importResObj = JacksonUtils.toObj(importResult);
-        int unrecognizedCount = importResObj.get("data").get("unrecognizedCount").intValue();
+        JSONObject importResObj = JSON.parseObject(importResult);
+        int unrecognizedCount = importResObj.getJSONObject("data").getIntValue("unrecognizedCount");
         Assert.assertEquals(1, unrecognizedCount);
-        JsonNode unrecognizedData = importResObj.get("data").get("unrecognizedData").get(0);
-        Assert.assertEquals("TEST_IMPORT/SUB_GROUP/test5.properties", unrecognizedData.get("itemName").textValue());
+        JSONObject unrecognizedData = importResObj.getJSONObject("data").getJSONArray("unrecognizedData").getJSONObject(0);
+        Assert.assertEquals("TEST_IMPORT/SUB_GROUP/test5.properties", unrecognizedData.getString("itemName"));
         
         String getDataUrl = "?search=accurate&dataId=&group=TEST_IMPORT&appName=&config_tags=&pageNo=1&pageSize=10&tenant=&namespaceId=";
         String queryResult = httpGetString(serverAddr + CONFIG_CONTROLLER_PATH + getDataUrl, null);
-        JsonNode resultObj = JacksonUtils.toObj(queryResult);
-        JsonNode resultConfigs = resultObj.get("pageItems");
+        JSONObject resultObj = JSON.parseObject(queryResult);
+        JSONArray resultConfigs = resultObj.getJSONArray("pageItems");
         Assert.assertEquals(3, resultConfigs.size());
         for (int i = 0; i < resultConfigs.size(); i++) {
-            JsonNode config = resultConfigs.get(i);
-            if (!"TEST_IMPORT".equals(config.get("group").textValue())) {
+            JSONObject config = resultConfigs.getJSONObject(i);
+            if (!"TEST_IMPORT".equals(config.getString("group"))) {
                 Assert.fail();
             }
-            switch (config.get("dataId").textValue()) {
+            switch (config.getString("dataId")) {
                 case "test1.yml":
-                    Assert.assertEquals(config.get("appName").textValue(), "testApp1");
+                    Assert.assertEquals(config.getString("appName"), "testApp1");
                     break;
                 case "test2.txt":
-                    Assert.assertEquals(config.get("appName").textValue(), "testApp2");
+                    Assert.assertEquals(config.getString("appName"), "testApp2");
                     break;
                 case "test3.properties":
-                    Assert.assertEquals(config.get("appName").textValue(), "testApp3");
+                    Assert.assertEquals(config.getString("appName"), "testApp3");
                     break;
                 default:
                     Assert.fail();
@@ -366,11 +367,11 @@ public class ConfigExportAndImportAPI_CITCase {
         
         getDataUrl = "?search=accurate&dataId=&group=TEST_IMPORT_2&appName=&config_tags=&pageNo=1&pageSize=10&tenant=&namespaceId=";
         queryResult = httpGetString(serverAddr + CONFIG_CONTROLLER_PATH + getDataUrl, null);
-        resultObj = JacksonUtils.toObj(queryResult);
-        resultConfigs = resultObj.get("pageItems");
+        resultObj = JSON.parseObject(queryResult);
+        resultConfigs = resultObj.getJSONArray("pageItems");
         Assert.assertEquals(1, resultConfigs.size());
-        JsonNode jsonNode = resultConfigs.get(0);
-        Assert.assertEquals(jsonNode.get("appName").textValue(), "testApp4");
+        JSONObject jsonNode = resultConfigs.getJSONObject(0);
+        Assert.assertEquals(jsonNode.getString("appName"), "testApp4");
     }
     
     private Map<String, String> processMetaData(ZipUtils.ZipItem metaDataZipItem) {
@@ -402,28 +403,28 @@ public class ConfigExportAndImportAPI_CITCase {
         String getDataUrl =
                 "?search=accurate&group=TEST1_GROUP&pageNo=1&pageSize=10&tenant=&namespaceId=&dataId=" + dataId;
         String queryResult = httpGetString(serverAddr + CONFIG_CONTROLLER_PATH + getDataUrl, null);
-        JsonNode resultObj = JacksonUtils.toObj(queryResult);
-        JsonNode resultConfigs = resultObj.get("pageItems");
-        JsonNode config1 = resultConfigs.get(0);
-        String configId = config1.get("id").asText();
+        JSONObject resultObj = JSON.parseObject(queryResult);
+        JSONArray resultConfigs = resultObj.getJSONArray("pageItems");
+        JSONObject config1 = resultConfigs.getJSONObject(0);
+        String configId = config1.getString("id");
         String exportByIdsUrl = "?exportV2=true&tenant=&group=&appName=&ids=" + configId;
         byte[] zipData = httpGetBytes(serverAddr + CONFIG_CONTROLLER_PATH + exportByIdsUrl, null);
         ZipUtils.UnZipResult unZiped = ZipUtils.unzip(zipData);
         List<ZipUtils.ZipItem> zipItemList = unZiped.getZipItemList();
         Assert.assertEquals(1, zipItemList.size());
-        String config1Name = config1.get("group").textValue() + "/" + config1.get("dataId").textValue();
+        String config1Name = config1.getString("group") + "/" + config1.getString("dataId");
         
         for (ZipUtils.ZipItem zipItem : zipItemList) {
             if (!(config1Name.equals(zipItem.getItemName()))) {
                 Assert.fail();
             }
         }
-        Assert.assertEquals(dataId, config1.get("dataId").asText());
-        String group = config1.get("group").asText();
+        Assert.assertEquals(dataId, config1.getString("dataId"));
+        String group = config1.getString("group");
         
         String queryConfigDetailResult = httpGetString(
                 serverAddr + CONFIG_CONTROLLER_PATH + "?show=all&dataId=" + dataId + "&group=" + group, null);
-        JsonNode configDetailResult = JacksonUtils.toObj(queryConfigDetailResult);
+        JSONObject configDetailResult = JSON.parseObject(queryConfigDetailResult);
         Assert.assertNotNull(configDetailResult);
         // verification metadata
         ZipUtils.ZipItem metaDataItem = unZiped.getMetaDataItem();
@@ -436,11 +437,11 @@ public class ConfigExportAndImportAPI_CITCase {
         ConfigMetadata.ConfigExportItem config1Metadata = new ConfigMetadata.ConfigExportItem();
         config1Metadata.setDataId(dataId);
         config1Metadata.setGroup(group);
-        config1Metadata.setType(configDetailResult.get("type").asText());
+        config1Metadata.setType(configDetailResult.getString("type"));
         config1Metadata.setAppName(
-                configDetailResult.get("appName") == null ? null : configDetailResult.get("appName").asText());
+                configDetailResult.get("appName") == null ? null : configDetailResult.getString("appName"));
         config1Metadata.setDesc(
-                configDetailResult.get("desc") == null ? null : configDetailResult.get("desc").asText());
+                configDetailResult.get("desc") == null ? null : configDetailResult.getString("desc"));
         
         ConfigMetadata.ConfigExportItem configExportItem1 = configMetadata.getMetadata().get(0);
         Assert.assertEquals(configExportItem1, config1Metadata);
@@ -460,19 +461,19 @@ public class ConfigExportAndImportAPI_CITCase {
         String importResult = uploadZipFile(serverAddr + CONFIG_CONTROLLER_PATH + importUrl, importPrarm,
                 "testImport.zip", ZipUtils.zip(zipItemList));
         
-        JsonNode importResObj = JacksonUtils.toObj(importResult);
-        Assert.assertEquals(importResObj.get("data").get("succCount").asInt(), 1);
+        JSONObject importResObj = JSON.parseObject(importResult);
+        Assert.assertEquals(importResObj.getJSONObject("data").getIntValue("succCount"), 1);
         
         String queryConfigDetailResult = httpGetString(
                 serverAddr + CONFIG_CONTROLLER_PATH + "?show=all&dataId=test1&group=TEST_IMPORT2", null);
-        JsonNode configDetailResult = JacksonUtils.toObj(queryConfigDetailResult);
+        JSONObject configDetailResult = JSON.parseObject(queryConfigDetailResult);
         Assert.assertNotNull(configDetailResult);
         
-        Assert.assertEquals(configDetailResult.get("dataId").asText(), "test1");
-        Assert.assertEquals(configDetailResult.get("group").asText(), "TEST_IMPORT2");
-        Assert.assertEquals(configDetailResult.get("type").asText(), "yaml");
-        Assert.assertEquals(configDetailResult.get("appName").asText(), "testAppName");
-        Assert.assertEquals(configDetailResult.get("desc").asText(), "testDesc");
+        Assert.assertEquals(configDetailResult.getString("dataId"), "test1");
+        Assert.assertEquals(configDetailResult.getString("group"), "TEST_IMPORT2");
+        Assert.assertEquals(configDetailResult.getString("type"), "yaml");
+        Assert.assertEquals(configDetailResult.getString("appName"), "testAppName");
+        Assert.assertEquals(configDetailResult.getString("desc"), "testDesc");
     }
     
     @Test
@@ -489,10 +490,10 @@ public class ConfigExportAndImportAPI_CITCase {
         importPrarm.put("policy", "OVERWRITE");
         String importResult = uploadZipFile(serverAddr + CONFIG_CONTROLLER_PATH + importUrl, importPrarm,
                 "testImport.zip", ZipUtils.zip(zipItemList));
-        
-        JsonNode importResObj = JacksonUtils.toObj(importResult);
-        Assert.assertEquals(importResObj.get("code").intValue(), ResultCodeEnum.METADATA_ILLEGAL.getCode());
-        Assert.assertEquals(importResObj.get("message").textValue(), ResultCodeEnum.METADATA_ILLEGAL.getCodeMsg());
+
+        JSONObject importResObj = JSON.parseObject(importResult);
+        Assert.assertEquals(importResObj.getIntValue("code"), ResultCodeEnum.METADATA_ILLEGAL.getCode());
+        Assert.assertEquals(importResObj.getString("message"), ResultCodeEnum.METADATA_ILLEGAL.getCodeMsg());
     }
     
     @Test
@@ -508,15 +509,15 @@ public class ConfigExportAndImportAPI_CITCase {
         importPrarm.put("policy", "OVERWRITE");
         String importResult = uploadZipFile(serverAddr + CONFIG_CONTROLLER_PATH + importUrl, importPrarm,
                 "testImport.zip", ZipUtils.zip(zipItemList));
-        
-        JsonNode importResObj = JacksonUtils.toObj(importResult);
-        JsonNode data = importResObj.get("data");
-        Assert.assertEquals(1, data.get("succCount").intValue());
+
+        JSONObject importResObj = JSON.parseObject(importResult);
+        JSONObject data = importResObj.getJSONObject("data");
+        Assert.assertEquals(1, data.getIntValue("succCount"));
         // test unrecognizedData
-        int unrecognizedCount = data.get("unrecognizedCount").intValue();
+        int unrecognizedCount = data.getIntValue("unrecognizedCount");
         Assert.assertEquals(1, unrecognizedCount);
-        JsonNode unrecognizedData = data.get("unrecognizedData").get(0);
-        Assert.assertEquals("未在文件中找到: TEST_IMPORT2/notExist", unrecognizedData.get("itemName").textValue());
+        JSONObject unrecognizedData = data.getJSONArray("unrecognizedData").getJSONObject(0);
+        Assert.assertEquals("未在文件中找到: TEST_IMPORT2/notExist", unrecognizedData.getString("itemName"));
         
     }
     
@@ -534,15 +535,15 @@ public class ConfigExportAndImportAPI_CITCase {
         importPrarm.put("policy", "OVERWRITE");
         String importResult = uploadZipFile(serverAddr + CONFIG_CONTROLLER_PATH + importUrl, importPrarm,
                 "testImport.zip", ZipUtils.zip(zipItemList));
-        
-        JsonNode importResObj = JacksonUtils.toObj(importResult);
-        JsonNode data = importResObj.get("data");
-        Assert.assertEquals(1, data.get("succCount").intValue());
+
+        JSONObject importResObj = JSON.parseObject(importResult);
+        JSONObject data = importResObj.getJSONObject("data");
+        Assert.assertEquals(1, data.getIntValue("succCount"));
         // test unrecognizedData
-        int unrecognizedCount = data.get("unrecognizedCount").intValue();
+        int unrecognizedCount = data.getIntValue("unrecognizedCount");
         Assert.assertEquals(1, unrecognizedCount);
-        JsonNode unrecognizedData = data.get("unrecognizedData").get(0);
-        Assert.assertEquals("未在元数据中找到: TEST_IMPORT2/ignore.yml", unrecognizedData.get("itemName").textValue());
+        JSONObject unrecognizedData = data.getJSONArray("unrecognizedData").getJSONObject(0);
+        Assert.assertEquals("未在元数据中找到: TEST_IMPORT2/ignore.yml", unrecognizedData.getString("itemName"));
     }
     
     private String httpGetString(String url, Map<String, String> param) {

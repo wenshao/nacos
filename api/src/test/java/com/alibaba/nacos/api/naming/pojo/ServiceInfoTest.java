@@ -16,10 +16,8 @@
 
 package com.alibaba.nacos.api.naming.pojo;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.utils.StringUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,20 +34,16 @@ import static org.junit.Assert.assertTrue;
 
 public class ServiceInfoTest {
     
-    private ObjectMapper mapper;
-    
     private ServiceInfo serviceInfo;
     
     @Before
     public void setUp() throws Exception {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         serviceInfo = new ServiceInfo("G@@testName", "testClusters");
     }
     
     @Test
-    public void testSerialize() throws JsonProcessingException {
-        String actual = mapper.writeValueAsString(serviceInfo);
+    public void testSerialize() {
+        String actual = JSON.toJSONString(serviceInfo);
         assertTrue(actual.contains("\"name\":\"G@@testName\""));
         assertTrue(actual.contains("\"clusters\":\"testClusters\""));
         assertTrue(actual.contains("\"cacheMillis\":1000"));
@@ -67,7 +61,7 @@ public class ServiceInfoTest {
     public void testDeserialize() throws IOException {
         String example = "{\"name\":\"G@@testName\",\"clusters\":\"testClusters\",\"cacheMillis\":1000,\"hosts\":[],"
                 + "\"lastRefTime\":0,\"checksum\":\"\",\"allIPs\":false,\"valid\":true,\"groupName\":\"\"}";
-        ServiceInfo actual = mapper.readValue(example, ServiceInfo.class);
+        ServiceInfo actual = JSON.parseObject(example, ServiceInfo.class);
         assertEquals("G@@testName", actual.getName());
         assertEquals(0, actual.ipCount());
         assertEquals("testClusters", actual.getClusters());
@@ -165,10 +159,10 @@ public class ServiceInfoTest {
     }
     
     @Test
-    public void testSetAndGet() throws JsonProcessingException {
+    public void testSetAndGet() {
         serviceInfo.setReachProtectionThreshold(true);
-        serviceInfo.setJsonFromServer(mapper.writeValueAsString(serviceInfo));
-        ServiceInfo actual = mapper.readValue(serviceInfo.getJsonFromServer(), ServiceInfo.class);
+        serviceInfo.setJsonFromServer(JSON.toJSONString(serviceInfo));
+        ServiceInfo actual = JSON.parseObject(serviceInfo.getJsonFromServer(), ServiceInfo.class);
         assertEquals(StringUtils.EMPTY, actual.getJsonFromServer());
         assertTrue(actual.isReachProtectionThreshold());
     }

@@ -16,16 +16,15 @@
 
 package com.alibaba.nacos.naming.controllers.v2;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.model.v2.Result;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
 import com.alibaba.nacos.auth.annotation.Secured;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.core.CatalogServiceV2Impl;
 import com.alibaba.nacos.naming.misc.UtilsAndCommons;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -61,7 +60,7 @@ public class CatalogControllerV2 {
      */
     @Secured(action = ActionTypes.READ)
     @RequestMapping(value = "/instances")
-    public Result<ObjectNode> instanceList(
+    public Result<JSONObject> instanceList(
             @RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
             @RequestParam String serviceName, @RequestParam(required = false) Boolean healthyOnly,
             @RequestParam(required = false) Boolean enabledOnly, @RequestParam(name = "pageNo") int page,
@@ -94,9 +93,9 @@ public class CatalogControllerV2 {
         }
         List<? extends Instance> ins = stream.collect(Collectors.toList());
         
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         if (ins.size() > start) {
-            result.replace("instances", JacksonUtils.transferToJsonNode(ins.subList(start, end)));
+            result.put("instances", ins.subList(start, end));
         }
         result.put("count", ins.size());
         

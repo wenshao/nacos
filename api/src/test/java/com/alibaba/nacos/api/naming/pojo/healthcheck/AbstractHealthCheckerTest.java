@@ -16,10 +16,8 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONWriter;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,20 +27,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AbstractHealthCheckerTest {
-    
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    
+
     @Before
     public void setUp() {
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        objectMapper.registerSubtypes(new NamedType(TestChecker.class, TestChecker.TYPE));
     }
-    
+
     @Test
-    public void testSerialize() throws JsonProcessingException {
+    public void testSerialize() {
         TestChecker testChecker = new TestChecker();
         testChecker.setTestValue("");
-        String actual = objectMapper.writeValueAsString(testChecker);
+        String actual = JSON.toJSONString(testChecker, JSONWriter.Feature.WriteClassName);
         assertTrue(actual.contains("\"testValue\":\"\""));
         assertTrue(actual.contains("\"type\":\"TEST\""));
     }
@@ -50,7 +44,7 @@ public class AbstractHealthCheckerTest {
     @Test
     public void testDeserialize() throws IOException {
         String testChecker = "{\"type\":\"TEST\",\"testValue\":\"\"}";
-        TestChecker actual = objectMapper.readValue(testChecker, TestChecker.class);
+        TestChecker actual = JSON.parseObject(testChecker, TestChecker.class);
         assertEquals("", actual.getTestValue());
         assertEquals(TestChecker.TYPE, actual.getType());
     }

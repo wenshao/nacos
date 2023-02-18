@@ -16,12 +16,13 @@
 
 package com.alibaba.nacos.naming.core;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.exception.api.NacosApiException;
 import com.alibaba.nacos.api.model.v2.ErrorCode;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.constants.FieldsConstants;
 import com.alibaba.nacos.naming.core.v2.ServiceManager;
 import com.alibaba.nacos.naming.core.v2.index.ServiceStorage;
@@ -32,8 +33,6 @@ import com.alibaba.nacos.naming.core.v2.metadata.ServiceMetadata;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
 import com.alibaba.nacos.naming.pojo.ClusterInfo;
 import com.alibaba.nacos.naming.pojo.ServiceDetailInfo;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -121,23 +120,23 @@ public class ServiceOperatorV2Impl implements ServiceOperator {
     }
     
     @Override
-    public ObjectNode queryService(String namespaceId, String serviceName) throws NacosException {
+    public JSONObject queryService(String namespaceId, String serviceName) throws NacosException {
         Service service = getServiceFromGroupedServiceName(namespaceId, serviceName, true);
         if (!ServiceManager.getInstance().containSingleton(service)) {
             throw new NacosApiException(NacosException.INVALID_PARAM, ErrorCode.SERVICE_NOT_EXIST,
                     "service not found, namespace: " + namespaceId + ", serviceName: " + serviceName);
         }
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         ServiceMetadata serviceMetadata = metadataManager.getServiceMetadata(service).orElse(new ServiceMetadata());
         setServiceMetadata(result, serviceMetadata, service);
-        ArrayNode clusters = JacksonUtils.createEmptyArrayNode();
+        JSONArray clusters = new JSONArray();
         for (String each : serviceStorage.getClusters(service)) {
             ClusterMetadata clusterMetadata =
                     serviceMetadata.getClusters().containsKey(each) ? serviceMetadata.getClusters().get(each)
                             : new ClusterMetadata();
             clusters.add(newClusterNode(each, clusterMetadata));
         }
-        result.set(FieldsConstants.CLUSTERS, clusters);
+        result.put(FieldsConstants.CLUSTERS, clusters);
         return result;
     }
     
@@ -170,14 +169,14 @@ public class ServiceOperatorV2Impl implements ServiceOperator {
         return result;
     }
     
-    private void setServiceMetadata(ObjectNode serviceDetail, ServiceMetadata serviceMetadata, Service service) {
+    private void setServiceMetadata(JSONObject serviceDetail, ServiceMetadata serviceMetadata, Service service) {
         serviceDetail.put(FieldsConstants.NAME_SPACE_ID, service.getNamespace());
         serviceDetail.put(FieldsConstants.GROUP_NAME, service.getGroup());
         serviceDetail.put(FieldsConstants.NAME, service.getName());
         serviceDetail.put(FieldsConstants.PROTECT_THRESHOLD, serviceMetadata.getProtectThreshold());
         serviceDetail
-                .replace(FieldsConstants.METADATA, JacksonUtils.transferToJsonNode(serviceMetadata.getExtendData()));
-        serviceDetail.replace(FieldsConstants.SELECTOR, JacksonUtils.transferToJsonNode(serviceMetadata.getSelector()));
+                .replace(FieldsConstants.METADATA, serviceMetadata.getExtendData());
+        serviceDetail.replace(FieldsConstants.SELECTOR, serviceMetadata.getSelector());
     }
     
     private void setServiceMetadata(ServiceDetailInfo serviceDetail, ServiceMetadata serviceMetadata, Service service) {
@@ -189,12 +188,11 @@ public class ServiceOperatorV2Impl implements ServiceOperator {
         serviceDetail.setSelector(serviceMetadata.getSelector());
     }
     
-    private ObjectNode newClusterNode(String clusterName, ClusterMetadata clusterMetadata) {
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+    private JSONObject newClusterNode(String clusterName, ClusterMetadata clusterMetadata) {
+        JSONObject result = new JSONObject();
         result.put(FieldsConstants.NAME, clusterName);
-        result.replace(FieldsConstants.HEALTH_CHECKER,
-                JacksonUtils.transferToJsonNode(clusterMetadata.getHealthChecker()));
-        result.replace(FieldsConstants.METADATA, JacksonUtils.transferToJsonNode(clusterMetadata.getExtendData()));
+        result.put(FieldsConstants.HEALTH_CHECKER, clusterMetadata.getHealthChecker());
+        result.replace(FieldsConstants.METADATA, clusterMetadata.getExtendData());
         return result;
     }
     

@@ -17,12 +17,12 @@
 
 package com.alibaba.nacos.naming.selector;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.selector.Selector;
 import com.alibaba.nacos.api.selector.context.SelectorContextBuilder;
 import com.alibaba.nacos.common.spi.NacosServiceLoader;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.misc.Loggers;
 import org.springframework.stereotype.Component;
@@ -102,7 +102,7 @@ public class SelectorManager {
                     throw new NoSuchMethodException();
                 }
                 // register json serial.
-                JacksonUtils.registerSubtype(selectorClass, selector.getType());
+                JSON.registerSeeAlsoSubType(selectorClass, selector.getType());
                 selectorTypes.put(selector.getType(), selectorClass);
                 Loggers.SRV_LOG.info("[SelectorManager] Load Selector({}) type({}) contextType({}) successfully.", selectorClass, selector.getType(),
                         selector.getContextType());

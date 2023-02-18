@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.api.naming.remote.request;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.alibaba.fastjson2.JSON;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,19 +26,19 @@ import static org.junit.Assert.assertTrue;
 public class SubscribeServiceRequestTest extends BasedNamingRequestTest {
     
     @Test
-    public void testSerialize() throws JsonProcessingException {
+    public void testSerialize() {
         SubscribeServiceRequest request = new SubscribeServiceRequest(NAMESPACE, GROUP, SERVICE, "", true);
-        String json = mapper.writeValueAsString(request);
+        String json = JSON.toJSONString(request);
         checkSerializeBasedInfo(json);
         assertTrue(json.contains("\"clusters\":\"\""));
         assertTrue(json.contains("\"subscribe\":true"));
     }
     
     @Test
-    public void testDeserialize() throws JsonProcessingException {
+    public void testDeserialize() {
         String json = "{\"headers\":{},\"namespace\":\"namespace\",\"serviceName\":\"service\",\"groupName\":\"group\","
                 + "\"subscribe\":false,\"clusters\":\"aa,bb\",\"module\":\"naming\"}";
-        SubscribeServiceRequest actual = mapper.readValue(json, SubscribeServiceRequest.class);
+        SubscribeServiceRequest actual = JSON.parseObject(json, SubscribeServiceRequest.class);
         checkNamingRequestBasedInfo(actual);
         assertEquals("aa,bb", actual.getClusters());
         assertFalse(actual.isSubscribe());

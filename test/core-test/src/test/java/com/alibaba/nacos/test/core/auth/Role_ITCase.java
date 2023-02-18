@@ -15,14 +15,14 @@
  */
 package com.alibaba.nacos.test.core.auth;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.Nacos;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.plugin.auth.impl.persistence.RoleInfo;
 import com.alibaba.nacos.config.server.model.Page;
 import com.alibaba.nacos.test.base.HttpClient4Test;
 import com.alibaba.nacos.test.base.Params;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -110,9 +110,9 @@ public class Role_ITCase extends HttpClient4Test {
             HttpMethod.POST);
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertTrue(json.has("accessToken"));
-        accessToken = json.get("accessToken").textValue();
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertTrue(json.containsKey("accessToken"));
+        accessToken = json.getString("accessToken");
     }
 
     @Test
@@ -157,7 +157,7 @@ public class Role_ITCase extends HttpClient4Test {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        Page<RoleInfo> roleInfoPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
+        Page<RoleInfo> roleInfoPage = JSON.parseObject(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
 
         Assert.assertNotNull(roleInfoPage);
         Assert.assertNotNull(roleInfoPage.getPageItems());
@@ -195,7 +195,7 @@ public class Role_ITCase extends HttpClient4Test {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        roleInfoPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
+        roleInfoPage = JSON.parseObject(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
 
         Assert.assertNotNull(roleInfoPage);
         Assert.assertNotNull(roleInfoPage.getPageItems());
@@ -240,7 +240,7 @@ public class Role_ITCase extends HttpClient4Test {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        roleInfoPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
+        roleInfoPage = JSON.parseObject(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
 
         Assert.assertNotNull(roleInfoPage);
         Assert.assertNotNull(roleInfoPage.getPageItems());
@@ -282,7 +282,7 @@ public class Role_ITCase extends HttpClient4Test {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        roleInfoPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
+        roleInfoPage = JSON.parseObject(response.getBody(), new TypeReference<Page<RoleInfo>>() {});
 
         Assert.assertNotNull(roleInfoPage);
         Assert.assertNotNull(roleInfoPage.getPageItems());

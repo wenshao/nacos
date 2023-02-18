@@ -16,12 +16,9 @@
 
 package com.alibaba.nacos.api.naming.pojo;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.naming.PreservedMetadataKeys;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -35,13 +32,8 @@ import static org.junit.Assert.assertTrue;
 
 public class InstanceTest {
     
-    private static ObjectMapper mapper;
-    
     @BeforeClass
     public static void setUp() throws Exception {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
     
     @Test
@@ -62,10 +54,10 @@ public class InstanceTest {
     }
     
     @Test
-    public void testJsonSerialize() throws JsonProcessingException {
+    public void testJsonSerialize() {
         Instance instance = new Instance();
         setInstance(instance);
-        String actual = mapper.writeValueAsString(instance);
+        String actual = JSON.toJSONString(instance);
         assertTrue(actual.contains("\"instanceId\":\"id\""));
         assertTrue(actual.contains("\"ip\":\"1.1.1.1\""));
         assertTrue(actual.contains("\"port\":1000"));
@@ -82,12 +74,12 @@ public class InstanceTest {
     }
     
     @Test
-    public void testJsonDeserialize() throws JsonProcessingException {
+    public void testJsonDeserialize() {
         String json = "{\"instanceId\":\"id\",\"ip\":\"1.1.1.1\",\"port\":1000,\"weight\":100.0,\"healthy\":false,"
                 + "\"enabled\":false,\"ephemeral\":false,\"clusterName\":\"cluster\","
                 + "\"serviceName\":\"group@@serviceName\",\"metadata\":{\"a\":\"b\"},\"instanceHeartBeatInterval\":5000,"
                 + "\"instanceHeartBeatTimeOut\":15000,\"ipDeleteTimeout\":30000}";
-        Instance instance = mapper.readValue(json, Instance.class);
+        Instance instance = JSON.parseObject(json, Instance.class);
         checkInstance(instance);
     }
     

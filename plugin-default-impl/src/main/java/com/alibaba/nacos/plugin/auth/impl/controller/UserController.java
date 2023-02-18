@@ -16,12 +16,12 @@
 
 package com.alibaba.nacos.plugin.auth.impl.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.auth.annotation.Secured;
 import com.alibaba.nacos.auth.config.AuthConfigs;
 import com.alibaba.nacos.common.model.RestResult;
 import com.alibaba.nacos.common.model.RestResultUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.config.server.model.Page;
 import com.alibaba.nacos.plugin.auth.api.IdentityContext;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
@@ -36,7 +36,6 @@ import com.alibaba.nacos.plugin.auth.impl.token.TokenManagerDelegate;
 import com.alibaba.nacos.plugin.auth.impl.users.NacosUser;
 import com.alibaba.nacos.plugin.auth.impl.users.NacosUserDetailsServiceImpl;
 import com.alibaba.nacos.plugin.auth.impl.utils.PasswordEncoderUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -230,7 +229,7 @@ public class UserController {
             
             response.addHeader(AuthConstants.AUTHORIZATION_HEADER, AuthConstants.TOKEN_PREFIX + user.getToken());
             
-            ObjectNode result = JacksonUtils.createEmptyJsonNode();
+            JSONObject result = new JSONObject();
             result.put(Constants.ACCESS_TOKEN, user.getToken());
             result.put(Constants.TOKEN_TTL, jwtTokenManager.getTokenTtlInSeconds(user.getToken()));
             result.put(Constants.GLOBAL_ADMIN, iAuthenticationManager.hasGlobalAdminRole(user));

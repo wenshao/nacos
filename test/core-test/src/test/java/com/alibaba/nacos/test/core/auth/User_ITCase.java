@@ -15,15 +15,15 @@
  */
 package com.alibaba.nacos.test.core.auth;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.Nacos;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.config.server.model.Page;
 import com.alibaba.nacos.plugin.auth.impl.persistence.User;
 import com.alibaba.nacos.plugin.auth.impl.utils.PasswordEncoderUtil;
 import com.alibaba.nacos.test.base.HttpClient4Test;
 import com.alibaba.nacos.test.base.Params;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -95,9 +95,9 @@ public class User_ITCase extends HttpClient4Test {
 
         ResponseEntity<String> response = login("nacos", "nacos");
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertTrue(json.has("accessToken"));
-        accessToken = json.get("accessToken").textValue();
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertTrue(json.containsKey("accessToken"));
+        accessToken = json.getString("accessToken");
     }
 
     private ResponseEntity<String> login(String username,String password){
@@ -138,7 +138,7 @@ public class User_ITCase extends HttpClient4Test {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        Page<User> userPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<User>>() {});
+        Page<User> userPage = JSON.parseObject(response.getBody(), new TypeReference<Page<User>>() {});
 
         Assert.assertNotNull(userPage);
         Assert.assertNotNull(userPage.getPageItems());
@@ -175,7 +175,7 @@ public class User_ITCase extends HttpClient4Test {
                 .done(),
             String.class);
 
-        userPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<User>>() {});
+        userPage = JSON.parseObject(response.getBody(), new TypeReference<Page<User>>() {});
 
         Assert.assertNotNull(userPage);
         Assert.assertNotNull(userPage.getPageItems());
@@ -213,7 +213,7 @@ public class User_ITCase extends HttpClient4Test {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        userPage = JacksonUtils.toObj(response.getBody(), new TypeReference<Page<User>>() {});
+        userPage = JSON.parseObject(response.getBody(), new TypeReference<Page<User>>() {});
 
         Assert.assertNotNull(userPage);
         Assert.assertNotNull(userPage.getPageItems());
@@ -259,11 +259,11 @@ public class User_ITCase extends HttpClient4Test {
 
         // user login
         response = login("username1", "password1");
-        String user1AccessToken = JacksonUtils.toObj(response.getBody()).get("accessToken").textValue();
+        String user1AccessToken = JSON.parseObject(response.getBody()).getString("accessToken");
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
         response = login("username2", "password2");
-        String user2AccessToken = JacksonUtils.toObj(response.getBody()).get("accessToken").textValue();
+        String user2AccessToken = JSON.parseObject(response.getBody()).getString("accessToken");
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
         // update by admin

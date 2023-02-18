@@ -16,6 +16,8 @@
 
 package com.alibaba.nacos.naming.controllers.v2;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.annotation.NacosApi;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -27,7 +29,6 @@ import com.alibaba.nacos.auth.annotation.Secured;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.trace.event.naming.DeregisterServiceTraceEvent;
 import com.alibaba.nacos.common.trace.event.naming.RegisterServiceTraceEvent;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.core.ServiceOperatorV2Impl;
 import com.alibaba.nacos.naming.core.v2.metadata.ServiceMetadata;
@@ -40,7 +41,6 @@ import com.alibaba.nacos.naming.selector.NoneSelector;
 import com.alibaba.nacos.naming.selector.SelectorManager;
 import com.alibaba.nacos.naming.utils.ServiceUtil;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -167,11 +167,11 @@ public class ServiceControllerV2 {
             return new NoneSelector();
         }
         
-        JsonNode selectorJson = JacksonUtils.toObj(URLDecoder.decode(selectorJsonString, "UTF-8"));
-        String type = Optional.ofNullable(selectorJson.get("type")).orElseThrow(
+        JSONObject selectorJson = JSON.parseObject(URLDecoder.decode(selectorJsonString, "UTF-8"));
+        String type = Optional.ofNullable(selectorJson.getString("type")).orElseThrow(
                 () -> new NacosApiException(NacosException.INVALID_PARAM, ErrorCode.SELECTOR_ERROR,
-                        "not match any type of selector!")).asText();
-        String expression = Optional.ofNullable(selectorJson.get("expression")).map(JsonNode::asText).orElse(null);
+                        "not match any type of selector!"));
+        String expression = selectorJson.getString("expression");
         Selector selector = selectorManager.parseSelector(type, expression);
         if (Objects.isNull(selector)) {
             throw new NacosApiException(NacosException.INVALID_PARAM, ErrorCode.SELECTOR_ERROR,

@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.config.server.model;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.consistency.IdGenerator;
 import com.alibaba.nacos.core.distributed.id.SnowFlowerIdGenerator;
 import com.alibaba.nacos.sys.env.EnvUtil;
@@ -33,8 +33,8 @@ public class ConfigInfoTest {
         long expected = generator.nextId();
         ConfigInfo configInfo = new ConfigInfo();
         configInfo.setId(expected);
-        String json = JacksonUtils.toJson(configInfo);
-        ConfigInfo actual = JacksonUtils.toObj(json, ConfigInfo.class);
+        String json = JSON.toJSONString(configInfo);
+        ConfigInfo actual = JSON.parseObject(json, ConfigInfo.class);
         Assert.assertEquals(expected, actual.getId());
         
     }

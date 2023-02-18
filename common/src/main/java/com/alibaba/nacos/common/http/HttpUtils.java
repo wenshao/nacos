@@ -16,11 +16,11 @@
 
 package com.alibaba.nacos.common.http;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.constant.HttpHeaderConsts;
 import com.alibaba.nacos.common.http.param.Header;
 import com.alibaba.nacos.common.http.param.MediaType;
 import com.alibaba.nacos.common.http.param.Query;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -94,7 +94,7 @@ public final class HttpUtils {
             if (body instanceof byte[]) {
                 entity = new ByteArrayEntity((byte[]) body, contentType);
             } else {
-                entity = new StringEntity(body instanceof String ? (String) body : JacksonUtils.toJson(body),
+                entity = new StringEntity(body instanceof String ? (String) body : JSON.toJSONString(body),
                         contentType);
             }
             request.setEntity(entity);

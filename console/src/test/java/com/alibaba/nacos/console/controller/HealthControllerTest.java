@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.console.controller;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.config.server.service.repository.ConfigInfoPersistService;
 import com.alibaba.nacos.naming.controllers.OperatorController;
 import org.junit.Assert;
@@ -73,7 +73,7 @@ public class HealthControllerTest {
         String url = "/v1/console/health/readiness";
         
         Mockito.when(configInfoPersistService.configInfoCount(any(String.class))).thenReturn(0);
-        Mockito.when(apiCommands.metrics(any(HttpServletRequest.class))).thenReturn(JacksonUtils.createEmptyJsonNode());
+        Mockito.when(apiCommands.metrics(any(HttpServletRequest.class))).thenReturn(new JSONObject());
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(url);
         Assert.assertEquals(200, mockmvc.perform(builder).andReturn().getResponse().getStatus());
         
@@ -90,7 +90,7 @@ public class HealthControllerTest {
         // Config is not in readiness
         Mockito.when(configInfoPersistService.configInfoCount(any(String.class)))
                 .thenThrow(new RuntimeException("HealthControllerTest.testReadiness"));
-        Mockito.when(apiCommands.metrics(any(HttpServletRequest.class))).thenReturn(JacksonUtils.createEmptyJsonNode());
+        Mockito.when(apiCommands.metrics(any(HttpServletRequest.class))).thenReturn(new JSONObject());
         response = mockmvc.perform(builder).andReturn().getResponse();
         Assert.assertEquals(500, response.getStatus());
         Assert.assertEquals("Config is not in readiness", response.getContentAsString());

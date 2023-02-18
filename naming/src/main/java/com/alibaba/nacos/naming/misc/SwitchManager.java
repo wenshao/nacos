@@ -16,10 +16,10 @@
 
 package com.alibaba.nacos.naming.misc;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.common.utils.ConvertUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.consistency.ConsistencyService;
 import com.alibaba.nacos.naming.consistency.Datum;
@@ -90,7 +90,7 @@ public class SwitchManager implements RecordListener<SwitchDomain> {
             
             if (SwitchEntry.BATCH.equals(entry)) {
                 //batch update
-                SwitchDomain dom = JacksonUtils.toObj(value, SwitchDomain.class);
+                SwitchDomain dom = JSON.parseObject(value, SwitchDomain.class);
                 dom.setEnableStandalone(switchDomain.isEnableStandalone());
                 if (dom.getHttpHealthParams().getMin() < SwitchDomain.HttpHealthParams.MIN_MIN
                         || dom.getTcpHealthParams().getMin() < SwitchDomain.HttpHealthParams.MIN_MIN) {

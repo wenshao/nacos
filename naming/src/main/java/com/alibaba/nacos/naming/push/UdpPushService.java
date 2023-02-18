@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.naming.push;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.api.remote.PushCallBack;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.misc.Loggers;
 import com.alibaba.nacos.naming.misc.SwitchDomain;
 import com.alibaba.nacos.naming.pojo.Subscriber;
@@ -98,7 +98,7 @@ public class UdpPushService {
     private AckEntry prepareAckEntry(Subscriber subscriber, ServiceInfo serviceInfo) {
         InetSocketAddress socketAddress = new InetSocketAddress(subscriber.getIp(), subscriber.getPort());
         long lastRefTime = System.nanoTime();
-        return prepareAckEntry(socketAddress, prepareHostsData(JacksonUtils.toJson(serviceInfo)), lastRefTime);
+        return prepareAckEntry(socketAddress, prepareHostsData(JSON.toJSONString(serviceInfo)), lastRefTime);
     }
     
     private static AckEntry prepareAckEntry(InetSocketAddress socketAddress, Map<String, Object> data,
@@ -108,7 +108,7 @@ public class UdpPushService {
             return null;
         }
         data.put("lastRefTime", lastRefTime);
-        String dataStr = JacksonUtils.toJson(data);
+        String dataStr = JSON.toJSONString(data);
         try {
             byte[] dataBytes = dataStr.getBytes(StandardCharsets.UTF_8);
             dataBytes = compressIfNecessary(dataBytes);

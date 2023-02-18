@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.config.server.controller;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.service.datasource.DynamicDataSource;
 import com.alibaba.nacos.config.server.service.datasource.LocalDataSourceServiceImpl;
@@ -110,7 +110,7 @@ public class ConfigOpsControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(Constants.OPS_CONTROLLER_PATH + "/derby")
                 .param("sql", "SELECT * FROM TEST");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        Assert.assertEquals("200", JacksonUtils.toObj(actualValue).get("code").toString());
+        Assert.assertEquals("200", JSON.parseObject(actualValue).get("code").toString());
         propertyUtilMockedStatic.close();
         dynamicDataSourceMockedStatic.close();
     }

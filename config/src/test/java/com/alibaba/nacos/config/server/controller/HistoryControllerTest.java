@@ -16,14 +16,14 @@
 
 package com.alibaba.nacos.config.server.controller;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.model.ConfigHistoryInfo;
 import com.alibaba.nacos.config.server.model.ConfigInfoWrapper;
 import com.alibaba.nacos.config.server.model.Page;
 import com.alibaba.nacos.config.server.service.HistoryService;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,9 +104,9 @@ public class HistoryControllerTest {
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
         
-        JsonNode pageItemsNode = JacksonUtils.toObj(actualValue).get("pageItems");
-        List resultList = JacksonUtils.toObj(pageItemsNode.toString(), List.class);
-        ConfigHistoryInfo resConfigHistoryInfo = JacksonUtils.toObj(pageItemsNode.get(0).toString(), ConfigHistoryInfo.class);
+        JSONArray pageItemsNode = JSON.parseObject(actualValue).getJSONArray("pageItems");
+        List resultList = JSON.parseObject(pageItemsNode.toString(), List.class);
+        ConfigHistoryInfo resConfigHistoryInfo = JSON.parseObject(pageItemsNode.get(0).toString(), ConfigHistoryInfo.class);
         
         Assert.assertEquals(configHistoryInfoList.size(), resultList.size());
         Assert.assertEquals(configHistoryInfo.getDataId(), resConfigHistoryInfo.getDataId());
@@ -135,7 +135,7 @@ public class HistoryControllerTest {
                 .param("nid", "1");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        ConfigHistoryInfo resConfigHistoryInfo = JacksonUtils.toObj(actualValue, ConfigHistoryInfo.class);
+        ConfigHistoryInfo resConfigHistoryInfo = JSON.parseObject(actualValue, ConfigHistoryInfo.class);
         
         Assert.assertEquals(configHistoryInfo.getDataId(), resConfigHistoryInfo.getDataId());
         Assert.assertEquals(configHistoryInfo.getGroup(), resConfigHistoryInfo.getGroup());
@@ -163,7 +163,7 @@ public class HistoryControllerTest {
                 .param("id", "1");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        ConfigHistoryInfo resConfigHistoryInfo = JacksonUtils.toObj(actualValue, ConfigHistoryInfo.class);
+        ConfigHistoryInfo resConfigHistoryInfo = JSON.parseObject(actualValue, ConfigHistoryInfo.class);
         
         Assert.assertEquals(configHistoryInfo.getDataId(), resConfigHistoryInfo.getDataId());
         Assert.assertEquals(configHistoryInfo.getGroup(), resConfigHistoryInfo.getGroup());
@@ -186,8 +186,8 @@ public class HistoryControllerTest {
                 .param("tenant", "test");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        List resConfigInfoWrappers = JacksonUtils.toObj(actualValue, List.class);
-        ConfigInfoWrapper resConfigInfoWrapper = JacksonUtils.toObj(JacksonUtils.toObj(actualValue).get(0).toString(), ConfigInfoWrapper.class);
+        List resConfigInfoWrappers = JSON.parseObject(actualValue, List.class);
+        ConfigInfoWrapper resConfigInfoWrapper = JSON.parseArray(actualValue).getObject(0, ConfigInfoWrapper.class);
         
         Assert.assertEquals(configInfoWrappers.size(), resConfigInfoWrappers.size());
         Assert.assertEquals(configInfoWrapper.getDataId(), resConfigInfoWrapper.getDataId());

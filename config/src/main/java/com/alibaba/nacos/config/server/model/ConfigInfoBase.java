@@ -16,10 +16,10 @@
 
 package com.alibaba.nacos.config.server.model;
 
+import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.alibaba.nacos.common.utils.MD5Utils;
 import com.alibaba.nacos.config.server.constant.Constants;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -33,8 +33,8 @@ import java.io.Serializable;
 public class ConfigInfoBase implements Serializable, Comparable<ConfigInfoBase> {
     
     static final long serialVersionUID = 265316491795790798L;
-    
-    @JsonSerialize(using = ToStringSerializer.class)
+
+    @JSONField(serializeFeatures = JSONWriter.Feature.WriteNonStringValueAsString)
     private long id;
     
     private String dataId;

@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.test.config;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.Nacos;
 import com.alibaba.nacos.api.exception.NacosException;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.ThreadUtils;
 import com.alibaba.nacos.test.base.ConfigCleanUtils;
 import com.alibaba.nacos.test.base.Params;
@@ -161,7 +161,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.GET);
         System.out.println("publishBetaConfig_noBetaIps_beta get : " + response);
         Assert.assertTrue(response1.getStatusCode().is2xxSuccessful());
-        Assert.assertTrue(JacksonUtils.toObj(response1.getBody()).get("data").isNull());
+        Assert.assertNull(JSON.parseObject(response1.getBody()).get("data"));
     }
 
     /**
@@ -243,7 +243,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.GET);
         System.out.println("getBetaConfig get : " + response);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        Assert.assertEquals("com.dungu.test", JacksonUtils.toObj(response.getBody()).get("data").get("dataId").asText());
+        Assert.assertEquals("com.dungu.test", JSON.parseObject(response.getBody()).getJSONObject("data").getString("dataId"));
     }
 
     /**
@@ -282,7 +282,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.GET);
         System.out.println("deleteBetaConfig get : " + response);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        Assert.assertEquals("com.dungu.test", JacksonUtils.toObj(response.getBody()).get("data").get("dataId").asText());
+        Assert.assertEquals("com.dungu.test", JSON.parseObject(response.getBody()).getJSONObject("data").getString("dataId"));
     
         response = request(CONFIG_CONTROLLER_PATH + "/configs?beta=true",
             Params.newParams()
@@ -294,7 +294,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.DELETE);
         System.out.println("deleteBetaConfig delete : " + response);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        Assert.assertEquals("true", JacksonUtils.toObj(response.getBody()).get("data").asText());
+        Assert.assertEquals("true", JSON.parseObject(response.getBody()).getString("data"));
 
         response = request(CONFIG_CONTROLLER_PATH + "/configs?beta=true",
             Params.newParams()
@@ -306,7 +306,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.GET);
         System.out.println("deleteBetaConfig after delete then get : " + response);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        Assert.assertTrue(JacksonUtils.toObj(response.getBody()).get("data").isNull());
+        Assert.assertNull(JSON.parseObject(response.getBody()).get("data"));
     }
 
 
@@ -346,7 +346,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.GET);
         System.out.println("deleteBetaConfig_delete_beta_false get : " + response);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        Assert.assertEquals("com.dungu.test", JacksonUtils.toObj(response.getBody()).get("data").get("dataId").asText());
+        Assert.assertEquals("com.dungu.test", JSON.parseObject(response.getBody()).getJSONObject("data").getString("dataId"));
 
         response = request(CONFIG_CONTROLLER_PATH + "/configs?beta=false",
             Params.newParams()
@@ -370,7 +370,7 @@ public class ConfigBeta_CITCase {
             HttpMethod.GET);
         System.out.println("deleteBetaConfig_delete_beta_false after delete then get : " + response);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        Assert.assertEquals("com.dungu.test", JacksonUtils.toObj(response.getBody()).get("data").get("dataId").asText());
+        Assert.assertEquals("com.dungu.test", JSON.parseObject(response.getBody()).getJSONObject("data").getString("dataId"));
     }
 
     <T> ResponseEntity<T> request(String path, MultiValueMap<String, String> params, Class<T> clazz, HttpMethod httpMethod) {

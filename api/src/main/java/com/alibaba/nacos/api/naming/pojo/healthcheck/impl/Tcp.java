@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck.impl;
 
+import com.alibaba.fastjson2.annotation.JSONType;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.AbstractHealthChecker;
 
 import java.util.Objects;
@@ -25,6 +26,7 @@ import java.util.Objects;
  *
  * @author yangyi
  */
+@JSONType(typeName = "TCP")
 public class Tcp extends AbstractHealthChecker {
     
     public static final String TYPE = "TCP";

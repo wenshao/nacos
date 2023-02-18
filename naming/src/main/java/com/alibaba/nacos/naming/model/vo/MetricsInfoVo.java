@@ -16,7 +16,8 @@
 
 package com.alibaba.nacos.naming.model.vo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.annotation.JSONType;
 
 import java.io.Serializable;
 
@@ -25,7 +26,7 @@ import java.io.Serializable;
  * @author dongyafei
  * @date 2022/9/15
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JSONType(serializeFeatures = JSONWriter.Feature.WriteNulls)
 public class MetricsInfoVo implements Serializable {
     
     private static final long serialVersionUID = -5064297490423743871L;

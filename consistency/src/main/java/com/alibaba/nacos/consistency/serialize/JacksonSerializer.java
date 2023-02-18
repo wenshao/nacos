@@ -16,8 +16,8 @@
 
 package com.alibaba.nacos.consistency.serialize;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.utils.ByteUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.consistency.Serializer;
 
 import java.lang.reflect.Type;
@@ -41,7 +41,7 @@ public class JacksonSerializer implements Serializer {
         if (ByteUtils.isEmpty(data)) {
             return null;
         }
-        return JacksonUtils.toObj(data, cls);
+        return JSON.parseObject(data, cls);
     }
     
     @Override
@@ -49,12 +49,12 @@ public class JacksonSerializer implements Serializer {
         if (ByteUtils.isEmpty(data)) {
             return null;
         }
-        return JacksonUtils.toObj(data, type);
+        return JSON.parseObject(data, type);
     }
     
     @Override
     public <T> byte[] serialize(T obj) {
-        return JacksonUtils.toJsonBytes(obj);
+        return JSON.toJSONBytes(obj);
     }
     
     @Override

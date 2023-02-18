@@ -16,6 +16,8 @@
 
 package com.alibaba.nacos.client.config.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.ability.ClientAbilities;
 import com.alibaba.nacos.api.common.Constants;
@@ -60,13 +62,10 @@ import com.alibaba.nacos.common.remote.client.RpcClient;
 import com.alibaba.nacos.common.remote.client.RpcClientFactory;
 import com.alibaba.nacos.common.remote.client.ServerListFactory;
 import com.alibaba.nacos.common.utils.ConvertUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.MD5Utils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.common.utils.ThreadUtils;
 import com.alibaba.nacos.common.utils.VersionUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.slf4j.Logger;
 
 import java.util.Collection;
@@ -481,7 +480,7 @@ public class ClientWorker implements Closeable {
         Map<ClientConfigMetricRequest.MetricsKey, Object> metricValues = getMetricsValue(metricsKeys);
         metric.put("metricValues", metricValues);
         Map<String, Object> metrics = new HashMap<>(1);
-        metrics.put(uuid, JacksonUtils.toJson(metric));
+        metrics.put(uuid, JSON.toJSONString(metric));
         return metrics;
     }
     
@@ -1000,7 +999,7 @@ public class ClientWorker implements Closeable {
             } catch (Exception e) {
                 throw new NacosException(NacosException.CLIENT_INVALID_PARAM, e);
             }
-            JsonObject asJsonObjectTemp = new Gson().toJsonTree(request).getAsJsonObject();
+            JSONObject asJsonObjectTemp = (JSONObject) JSON.toJSON(request);
             asJsonObjectTemp.remove("headers");
             asJsonObjectTemp.remove("requestId");
             boolean limit = Limiter.isLimit(request.getClass() + asJsonObjectTemp.toString());

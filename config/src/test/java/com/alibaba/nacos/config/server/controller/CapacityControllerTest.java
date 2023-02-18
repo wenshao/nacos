@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.config.server.controller;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.model.capacity.Capacity;
 import com.alibaba.nacos.config.server.service.capacity.CapacityService;
@@ -84,7 +84,7 @@ public class CapacityControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(Constants.CAPACITY_CONTROLLER_PATH)
                 .param("group", "test").param("tenant", "test");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        Capacity result = JacksonUtils.toObj(JacksonUtils.toObj(actualValue).get("data").toString(), Capacity.class);
+        Capacity result = JSON.parseObject(JSON.parseObject(actualValue).get("data").toString(), Capacity.class);
         
         Assert.assertNotNull(result);
         Assert.assertEquals(capacity.getId(), result.getId());
@@ -105,8 +105,8 @@ public class CapacityControllerTest {
                 .param("quota", "1").param("maxSize", "1")
                 .param("maxAggrCount", "1").param("maxAggrSize", "1");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
         Assert.assertEquals("200", code);
         Assert.assertEquals("true", data);
     }
@@ -116,8 +116,8 @@ public class CapacityControllerTest {
         
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.post(Constants.CAPACITY_CONTROLLER_PATH);
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
         Assert.assertEquals("400", code);
         Assert.assertEquals("false", data);
     }
@@ -128,8 +128,8 @@ public class CapacityControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.post(Constants.CAPACITY_CONTROLLER_PATH)
                 .param("group", "test").param("tenant", "test");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
         Assert.assertEquals("400", code);
         Assert.assertEquals("false", data);
     }
@@ -144,8 +144,8 @@ public class CapacityControllerTest {
                 .param("quota", "1").param("maxSize", "1")
                 .param("maxAggrCount", "1").param("maxAggrSize", "1");
         String actualValue = mockMvc.perform(builder).andReturn().getResponse().getContentAsString();
-        String code = JacksonUtils.toObj(actualValue).get("code").toString();
-        String data = JacksonUtils.toObj(actualValue).get("data").toString();
+        String code = JSON.parseObject(actualValue).get("code").toString();
+        String data = JSON.parseObject(actualValue).get("data").toString();
         Assert.assertEquals("500", code);
         Assert.assertEquals("false", data);
     }

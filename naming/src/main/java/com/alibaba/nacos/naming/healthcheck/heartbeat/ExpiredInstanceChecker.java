@@ -16,13 +16,13 @@
 
 package com.alibaba.nacos.naming.healthcheck.heartbeat;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.naming.PreservedMetadataKeys;
 import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.trace.DeregisterInstanceReason;
 import com.alibaba.nacos.common.trace.event.naming.DeregisterInstanceTraceEvent;
 import com.alibaba.nacos.common.utils.ConvertUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.core.v2.client.Client;
 import com.alibaba.nacos.naming.core.v2.event.client.ClientOperationEvent;
 import com.alibaba.nacos.naming.core.v2.event.metadata.MetadataEvent;
@@ -74,7 +74,7 @@ public class ExpiredInstanceChecker implements InstanceBeatChecker {
     }
     
     private void deleteIp(Client client, Service service, InstancePublishInfo instance) {
-        Loggers.SRV_LOG.info("[AUTO-DELETE-IP] service: {}, ip: {}", service.toString(), JacksonUtils.toJson(instance));
+        Loggers.SRV_LOG.info("[AUTO-DELETE-IP] service: {}, ip: {}", service.toString(), JSON.toJSONString(instance));
         client.removeServiceInstance(service);
         NotifyCenter.publishEvent(new ClientOperationEvent.ClientDeregisterServiceEvent(service, client.getClientId()));
         NotifyCenter.publishEvent(new MetadataEvent.InstanceMetadataEvent(service, instance.getMetadataId(), true));

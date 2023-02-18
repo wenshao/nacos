@@ -16,8 +16,8 @@
 
 package com.alibaba.nacos.common.http.handler;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.model.RestResult;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.TypeUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class ResponseHandlerTest {
     
     @Test
     public void testDeserializationType() throws Exception {
-        String json = JacksonUtils.toJson(list);
+        String json = JSON.toJSONString(list);
         ArrayList<Integer> tmp = ResponseHandler.convert(json, TypeUtils.parameterize(List.class, Integer.class));
         Assert.assertEquals(list, tmp);
     }
@@ -49,7 +49,7 @@ public class ResponseHandlerTest {
     
     @Test
     public void testDeserializationClass() throws Exception {
-        String json = JacksonUtils.toJson(list);
+        String json = JSON.toJSONString(list);
         ArrayList<Integer> tmp = ResponseHandler.convert(json, TypeUtils.parameterize(List.class, Integer.class));
         Assert.assertEquals(list, tmp);
     }

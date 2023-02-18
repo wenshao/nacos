@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.common.http.client.request;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.constant.HttpHeaderConsts;
 import com.alibaba.nacos.common.http.HttpClientConfig;
 import com.alibaba.nacos.common.http.HttpUtils;
@@ -25,7 +26,6 @@ import com.alibaba.nacos.common.http.param.Header;
 import com.alibaba.nacos.common.http.param.MediaType;
 import com.alibaba.nacos.common.model.RequestHttpEntity;
 import com.alibaba.nacos.common.utils.IoUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -96,9 +96,9 @@ public class JdkHttpClientRequest implements HttpClientRequest {
         conn.setRequestMethod(httpMethod);
         if (body != null && !"".equals(body)) {
             String contentType = headers.getValue(HttpHeaderConsts.CONTENT_TYPE);
-            String bodyStr = JacksonUtils.toJson(body);
+            String bodyStr = JSON.toJSONString(body);
             if (MediaType.APPLICATION_FORM_URLENCODED.equals(contentType)) {
-                Map<String, String> map = JacksonUtils.toObj(bodyStr, HashMap.class);
+                Map<String, String> map = JSON.parseObject(bodyStr, HashMap.class);
                 bodyStr = HttpUtils.encodingParams(map, headers.getCharset());
             }
             if (bodyStr != null) {

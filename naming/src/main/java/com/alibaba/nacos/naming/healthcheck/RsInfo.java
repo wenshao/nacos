@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.naming.healthcheck;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 
 import java.util.Map;
 
@@ -159,6 +159,6 @@ public class RsInfo {
     
     @Override
     public String toString() {
-        return JacksonUtils.toJson(this);
+        return JSON.toJSONString(this);
     }
 }

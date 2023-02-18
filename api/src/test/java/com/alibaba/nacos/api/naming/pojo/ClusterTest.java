@@ -16,12 +16,9 @@
 
 package com.alibaba.nacos.api.naming.pojo;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Http;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Tcp;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,14 +30,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ClusterTest {
-    
-    private static ObjectMapper mapper;
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
     
     @Test
@@ -72,7 +64,7 @@ public class ClusterTest {
     }
     
     @Test
-    public void testJsonSerialize() throws JsonProcessingException {
+    public void testJsonSerialize() {
         Cluster actual = new Cluster("cluster");
         actual.setServiceName("group@@service");
         actual.setHealthChecker(new Http());
@@ -80,7 +72,7 @@ public class ClusterTest {
         actual.setDefaultCheckPort(82);
         actual.setUseIPPort4Check(false);
         actual.setMetadata(Collections.singletonMap("a", "a"));
-        String json = mapper.writeValueAsString(actual);
+        String json = JSON.toJSONString(actual);
         assertTrue(json.contains("\"serviceName\":\"group@@service\""));
         assertTrue(json.contains("\"name\":\"cluster\""));
         assertTrue(json.contains("\"type\":\"HTTP\""));
@@ -91,11 +83,11 @@ public class ClusterTest {
     }
     
     @Test
-    public void testJsonDeserialize() throws JsonProcessingException {
+    public void testJsonDeserialize() {
         String json = "{\"serviceName\":\"group@@service\",\"name\":\"cluster\","
                 + "\"healthChecker\":{\"type\":\"HTTP\",\"path\":\"\",\"headers\":\"\",\"expectedResponseCode\":200},"
                 + "\"defaultPort\":81,\"defaultCheckPort\":82,\"useIPPort4Check\":false,\"metadata\":{\"a\":\"a\"}}";
-        Cluster actual = mapper.readValue(json, Cluster.class);
+        Cluster actual = JSON.parseObject(json, Cluster.class);
         assertEquals("cluster", actual.getName());
         assertEquals("group@@service", actual.getServiceName());
         assertEquals(Http.TYPE, actual.getHealthChecker().getType());

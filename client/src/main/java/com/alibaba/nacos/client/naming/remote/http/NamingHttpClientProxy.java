@@ -16,6 +16,9 @@
 
 package com.alibaba.nacos.client.naming.remote.http;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.SystemPropertyKeyConst;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -46,10 +49,7 @@ import com.alibaba.nacos.common.notify.Event;
 import com.alibaba.nacos.common.utils.ConvertUtils;
 import com.alibaba.nacos.common.utils.HttpMethod;
 import com.alibaba.nacos.common.utils.InternetAddressUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.http.HttpStatus;
 
 import java.util.Collections;
@@ -149,7 +149,7 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         params.put(REGISTER_ENABLE_PARAM, String.valueOf(instance.isEnabled()));
         params.put(HEALTHY_PARAM, String.valueOf(instance.isHealthy()));
         params.put(EPHEMERAL_PARAM, String.valueOf(instance.isEphemeral()));
-        params.put(META_PARAM, JacksonUtils.toJson(instance.getMetadata()));
+        params.put(META_PARAM, JSON.toJSONString(instance.getMetadata()));
         reqApi(UtilAndComs.nacosUrlInstance, params, HttpMethod.POST);
     }
     
@@ -200,7 +200,7 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         params.put(WEIGHT_PARAM, String.valueOf(instance.getWeight()));
         params.put(ENABLE_PARAM, String.valueOf(instance.isEnabled()));
         params.put(EPHEMERAL_PARAM, String.valueOf(instance.isEphemeral()));
-        params.put(META_PARAM, JacksonUtils.toJson(instance.getMetadata()));
+        params.put(META_PARAM, JSON.toJSONString(instance.getMetadata()));
         
         reqApi(UtilAndComs.nacosUrlInstance, params, HttpMethod.PUT);
     }
@@ -217,7 +217,7 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         params.put(HEALTHY_ONLY_PARAM, String.valueOf(healthyOnly));
         String result = reqApi(UtilAndComs.nacosUrlBase + "/instance/list", params, HttpMethod.GET);
         if (StringUtils.isNotEmpty(result)) {
-            return JacksonUtils.toObj(result, ServiceInfo.class);
+            return JSON.parseObject(result, ServiceInfo.class);
         }
         return new ServiceInfo(NamingUtils.getGroupedName(serviceName, groupName), clusters);
     }
@@ -232,7 +232,7 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         params.put(CommonParams.GROUP_NAME, groupName);
         
         String result = reqApi(UtilAndComs.nacosUrlService, params, HttpMethod.GET);
-        return JacksonUtils.toObj(result, Service.class);
+        return JSON.parseObject(result, Service.class);
     }
     
     @Override
@@ -245,8 +245,8 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         params.put(CommonParams.SERVICE_NAME, service.getName());
         params.put(CommonParams.GROUP_NAME, service.getGroupName());
         params.put(PROTECT_THRESHOLD_PARAM, String.valueOf(service.getProtectThreshold()));
-        params.put(META_PARAM, JacksonUtils.toJson(service.getMetadata()));
-        params.put(SELECTOR_PARAM, JacksonUtils.toJson(selector));
+        params.put(META_PARAM, JSON.toJSONString(service.getMetadata()));
+        params.put(SELECTOR_PARAM, JSON.toJSONString(selector));
         
         reqApi(UtilAndComs.nacosUrlService, params, HttpMethod.POST);
         
@@ -275,8 +275,8 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         params.put(CommonParams.SERVICE_NAME, service.getName());
         params.put(CommonParams.GROUP_NAME, service.getGroupName());
         params.put(PROTECT_THRESHOLD_PARAM, String.valueOf(service.getProtectThreshold()));
-        params.put(META_PARAM, JacksonUtils.toJson(service.getMetadata()));
-        params.put(SELECTOR_PARAM, JacksonUtils.toJson(selector));
+        params.put(META_PARAM, JSON.toJSONString(service.getMetadata()));
+        params.put(SELECTOR_PARAM, JSON.toJSONString(selector));
         
         reqApi(UtilAndComs.nacosUrlService, params, HttpMethod.PUT);
     }
@@ -286,8 +286,8 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         
         try {
             String result = reqApi(UtilAndComs.nacosUrlBase + "/operator/metrics", new HashMap<>(8), HttpMethod.GET);
-            JsonNode json = JacksonUtils.toObj(result);
-            String serverStatus = json.get("status").asText();
+            JSONObject json = JSON.parseObject(result);
+            String serverStatus = json.getString("status");
             return "UP".equals(serverStatus);
         } catch (Exception e) {
             return false;
@@ -310,7 +310,7 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
                     break;
                 case label:
                     ExpressionSelector expressionSelector = (ExpressionSelector) selector;
-                    params.put(SELECTOR_PARAM, JacksonUtils.toJson(expressionSelector));
+                    params.put(SELECTOR_PARAM, JSON.toJSONString(expressionSelector));
                     break;
                 default:
                     break;
@@ -319,10 +319,10 @@ public class NamingHttpClientProxy extends AbstractNamingClientProxy {
         
         String result = reqApi(UtilAndComs.nacosUrlBase + "/service/list", params, HttpMethod.GET);
         
-        JsonNode json = JacksonUtils.toObj(result);
+        JSONObject json = JSON.parseObject(result);
         ListView<String> listView = new ListView<>();
-        listView.setCount(json.get("count").asInt());
-        listView.setData(JacksonUtils.toObj(json.get("doms").toString(), new TypeReference<List<String>>() {
+        listView.setCount(json.getIntValue("count"));
+        listView.setData(JSON.parseObject(json.get("doms").toString(), new TypeReference<List<String>>() {
         }));
         
         return listView;

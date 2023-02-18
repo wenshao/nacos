@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.plugin.auth.impl.jwt;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 
 /**
  * NacosJwtPayload.
@@ -48,6 +48,6 @@ public class NacosJwtPayload {
     
     @Override
     public String toString() {
-        return JacksonUtils.toJson(this);
+        return JSON.toJSONString(this);
     }
 }

@@ -15,6 +15,8 @@
  */
 package com.alibaba.nacos.test.naming;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.Nacos;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.common.Constants;
@@ -22,9 +24,7 @@ import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ListView;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.test.base.Params;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -230,9 +230,9 @@ public class CPInstancesAPI_ITCase {
 
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(serviceName, json.get("name").textValue());
-        Assert.assertEquals("0.5", json.get("protectThreshold").asText());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(serviceName, json.getString("name"));
+        Assert.assertEquals("0.5", json.getString("protectThreshold"));
 
         namingServiceDelete(serviceName, TEST_NAMESPACE_1);
     }
@@ -278,8 +278,8 @@ public class CPInstancesAPI_ITCase {
 
         System.out.println("json = " + response.getBody());
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        int count = json.get("count").intValue();
+        JSONObject json = JSON.parseObject(response.getBody());
+        int count = json.getIntValue("count");
         Assert.assertEquals(listView.getCount() + 1, count);
 
         namingServiceDelete(serviceName, Constants.DEFAULT_NAMESPACE_ID);
@@ -304,8 +304,8 @@ public class CPInstancesAPI_ITCase {
                 .done(),
             String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
 
         instanceDeregister(serviceName, Constants.DEFAULT_NAMESPACE_ID, "33.33.33.33", TEST_PORT2_4_DOM_1);
 
@@ -358,8 +358,8 @@ public class CPInstancesAPI_ITCase {
                 .done(),
             String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
 
         instanceDeregister(serviceName, Constants.DEFAULT_NAMESPACE_ID, "33.33.33.33", TEST_PORT2_4_DOM_1);
         instanceDeregister(serviceName, Constants.DEFAULT_NAMESPACE_ID, TEST_GROUP_1, "22.22.22.22", TEST_PORT2_4_DOM_1);

@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.naming.remote.udp;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.remote.PushCallBack;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.misc.GlobalExecutor;
 import com.alibaba.nacos.naming.misc.Loggers;
 import com.alibaba.nacos.naming.monitor.MetricsMonitor;
@@ -192,7 +192,7 @@ public class UdpConnector {
                 try {
                     udpSocket.receive(packet);
                     String json = new String(packet.getData(), 0, packet.getLength(), StandardCharsets.UTF_8).trim();
-                    AckPacket ackPacket = JacksonUtils.toObj(json, AckPacket.class);
+                    AckPacket ackPacket = JSON.parseObject(json, AckPacket.class);
                     InetSocketAddress socketAddress = (InetSocketAddress) packet.getSocketAddress();
                     String ip = socketAddress.getAddress().getHostAddress();
                     int port = socketAddress.getPort();

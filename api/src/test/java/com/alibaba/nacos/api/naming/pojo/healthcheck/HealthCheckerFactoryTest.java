@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck;
 
+import com.alibaba.fastjson2.JSONFactory;
 import com.alibaba.nacos.api.exception.runtime.NacosDeserializationException;
 import com.alibaba.nacos.api.exception.runtime.NacosSerializationException;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Tcp;
@@ -30,7 +31,7 @@ public class HealthCheckerFactoryTest {
     
     @BeforeClass
     public static void beforeClass() {
-        HealthCheckerFactory.registerSubType(new TestChecker());
+        JSONFactory.getDefaultObjectReaderProvider().registerSeeAlsoSubType(TestChecker.class);
     }
     
     @Test
@@ -118,7 +119,7 @@ public class HealthCheckerFactoryTest {
     private static class SelfDependHealthChecker extends AbstractHealthChecker {
         
         private static final long serialVersionUID = 876677992848225965L;
-        
+
         public SelfDependHealthChecker self = this;
         
         protected SelfDependHealthChecker() {

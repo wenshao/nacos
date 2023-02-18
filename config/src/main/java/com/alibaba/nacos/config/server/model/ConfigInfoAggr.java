@@ -16,8 +16,8 @@
 
 package com.alibaba.nacos.config.server.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.annotation.JSONField;
 
 import java.io.Serializable;
 
@@ -29,8 +29,8 @@ import java.io.Serializable;
 public class ConfigInfoAggr implements Serializable {
     
     private static final long serialVersionUID = -3845825581059306364L;
-    
-    @JsonSerialize(using = ToStringSerializer.class)
+
+    @JSONField(serializeFeatures = JSONWriter.Feature.WriteNonStringValueAsString)
     private long id;
     
     private String dataId;

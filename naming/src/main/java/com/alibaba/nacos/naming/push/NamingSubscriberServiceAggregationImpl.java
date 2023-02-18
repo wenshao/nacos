@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.naming.push;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.naming.CommonParams;
 import com.alibaba.nacos.common.model.RestResult;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.core.cluster.Member;
 import com.alibaba.nacos.core.cluster.ServerMemberManager;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
@@ -106,7 +106,7 @@ public class NamingSubscriberServiceAggregationImpl implements NamingSubscriberS
                     HTTP_PREFIX + server.getAddress() + EnvUtil.getContextPath() + UtilsAndCommons.NACOS_NAMING_CONTEXT
                             + SUBSCRIBER_ON_SYNC_URL, new ArrayList<>(), paramValues);
             if (response.ok()) {
-                Subscribers subscribers = JacksonUtils.toObj(response.getData(), Subscribers.class);
+                Subscribers subscribers = JSON.parseObject(response.getData(), Subscribers.class);
                 result.addAll(subscribers.getSubscribers());
             }
         }

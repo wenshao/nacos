@@ -16,13 +16,13 @@
 
 package com.alibaba.nacos.naming.controllers.v2;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.annotation.NacosApi;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.api.NacosApiException;
 import com.alibaba.nacos.api.model.v2.ErrorCode;
 import com.alibaba.nacos.api.model.v2.Result;
 import com.alibaba.nacos.auth.annotation.Secured;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.core.remote.Connection;
 import com.alibaba.nacos.core.remote.ConnectionManager;
 import com.alibaba.nacos.core.remote.ConnectionMeta;
@@ -36,7 +36,6 @@ import com.alibaba.nacos.naming.core.v2.pojo.Service;
 import com.alibaba.nacos.naming.misc.UtilsAndCommons;
 import com.alibaba.nacos.naming.pojo.Subscriber;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,11 +88,11 @@ public class ClientInfoControllerV2 {
      */
     @GetMapping()
     @Secured(action = ActionTypes.READ, resource = "nacos/admin")
-    public Result<ObjectNode> getClientDetail(@RequestParam("clientId") String clientId) throws NacosApiException {
+    public Result<JSONObject> getClientDetail(@RequestParam("clientId") String clientId) throws NacosApiException {
         checkClientId(clientId);
         Client client = clientManager.getClient(clientId);
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+
+        JSONObject result = new JSONObject();
         result.put("clientId", client.getClientId());
         result.put("ephemeral", client.isEphemeral());
         result.put("lastUpdatedTime", client.getLastUpdatedTime());
@@ -127,23 +126,23 @@ public class ClientInfoControllerV2 {
      */
     @GetMapping("/publish/list")
     @Secured(action = ActionTypes.READ, resource = "nacos/admin")
-    public Result<List<ObjectNode>> getPublishedServiceList(@RequestParam("clientId") String clientId)
+    public Result<List<JSONObject>> getPublishedServiceList(@RequestParam("clientId") String clientId)
             throws NacosApiException {
         checkClientId(clientId);
         Client client = clientManager.getClient(clientId);
         Collection<Service> allPublishedService = client.getAllPublishedService();
-        ArrayList<ObjectNode> res = new ArrayList<>();
+        ArrayList<JSONObject> res = new ArrayList<>();
         for (Service service : allPublishedService) {
-            ObjectNode item = JacksonUtils.createEmptyJsonNode();
+            JSONObject item = new JSONObject();
             item.put("namespace", service.getNamespace());
             item.put("group", service.getGroup());
             item.put("serviceName", service.getName());
             InstancePublishInfo instancePublishInfo = client.getInstancePublishInfo(service);
-            ObjectNode instanceInfo = JacksonUtils.createEmptyJsonNode();
+            JSONObject instanceInfo = new JSONObject();
             instanceInfo.put("ip", instancePublishInfo.getIp());
             instanceInfo.put("port", instancePublishInfo.getPort());
             instanceInfo.put("cluster", instancePublishInfo.getCluster());
-            item.set("registeredInstance", instanceInfo);
+            item.put("registeredInstance", instanceInfo);
             res.add(item);
         }
         return Result.success(res);
@@ -156,23 +155,23 @@ public class ClientInfoControllerV2 {
      */
     @GetMapping("/subscribe/list")
     @Secured(action = ActionTypes.READ, resource = "nacos/admin")
-    public Result<List<ObjectNode>> getSubscribeServiceList(@RequestParam("clientId") String clientId)
+    public Result<List<JSONObject>> getSubscribeServiceList(@RequestParam("clientId") String clientId)
             throws NacosApiException {
         checkClientId(clientId);
         Client client = clientManager.getClient(clientId);
         Collection<Service> allSubscribeService = client.getAllSubscribeService();
-        ArrayList<ObjectNode> res = new ArrayList<>();
+        ArrayList<JSONObject> res = new ArrayList<>();
         for (Service service : allSubscribeService) {
-            ObjectNode item = JacksonUtils.createEmptyJsonNode();
+            JSONObject item = new JSONObject();
             item.put("namespace", service.getNamespace());
             item.put("group", service.getGroup());
             item.put("serviceName", service.getName());
             Subscriber subscriber = client.getSubscriber(service);
-            ObjectNode subscriberInfo = JacksonUtils.createEmptyJsonNode();
+            JSONObject subscriberInfo = new JSONObject();
             subscriberInfo.put("app", subscriber.getApp());
             subscriberInfo.put("agent", subscriber.getAgent());
             subscriberInfo.put("addr", subscriber.getAddrStr());
-            item.set("subscriberInfo", subscriberInfo);
+            item.put("subscriberInfo", subscriberInfo);
             res.add(item);
         }
         return Result.success(res);
@@ -191,7 +190,7 @@ public class ClientInfoControllerV2 {
      */
     @GetMapping("/service/publisher/list")
     @Secured(action = ActionTypes.READ, resource = "nacos/admin")
-    public Result<List<ObjectNode>> getPublishedClientList(
+    public Result<List<JSONObject>> getPublishedClientList(
             @RequestParam(value = "namespaceId", required = false, defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
             @RequestParam(value = "groupName", required = false, defaultValue = Constants.DEFAULT_GROUP) String groupName,
             @RequestParam(value = "ephemeral", required = false, defaultValue = "true") Boolean ephemeral,
@@ -200,7 +199,7 @@ public class ClientInfoControllerV2 {
         Service service = Service.newService(namespaceId, groupName, serviceName, ephemeral);
         Collection<String> allClientsRegisteredService = clientServiceIndexesManager
                 .getAllClientsRegisteredService(service);
-        ArrayList<ObjectNode> res = new ArrayList<>();
+        ArrayList<JSONObject> res = new ArrayList<>();
         for (String clientId : allClientsRegisteredService) {
             Client client = clientManager.getClient(clientId);
             InstancePublishInfo instancePublishInfo = client.getInstancePublishInfo(service);
@@ -208,11 +207,11 @@ public class ClientInfoControllerV2 {
                     .equals(port, instancePublishInfo.getPort())) {
                 continue;
             }
-            ObjectNode item = JacksonUtils.createEmptyJsonNode();
-            item.put("clientId", clientId);
-            item.put("ip", instancePublishInfo.getIp());
-            item.put("port", instancePublishInfo.getPort());
-            res.add(item);
+            res.add(JSONObject.of(
+                    "clientId", clientId,
+                    "ip", instancePublishInfo.getIp(),
+                    "port", instancePublishInfo.getPort()
+            ));
         }
         return Result.success(res);
     }
@@ -230,7 +229,7 @@ public class ClientInfoControllerV2 {
      */
     @GetMapping("/service/subscriber/list")
     @Secured(action = ActionTypes.READ, resource = "nacos/admin")
-    public Result<List<ObjectNode>> getSubscribeClientList(
+    public Result<List<JSONObject>> getSubscribeClientList(
             @RequestParam(value = "namespaceId", required = false, defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
             @RequestParam(value = "groupName", required = false, defaultValue = Constants.DEFAULT_GROUP) String groupName,
             @RequestParam(value = "ephemeral", required = false, defaultValue = "true") Boolean ephemeral,
@@ -239,18 +238,20 @@ public class ClientInfoControllerV2 {
         Service service = Service.newService(namespaceId, groupName, serviceName, ephemeral);
         Collection<String> allClientsSubscribeService = clientServiceIndexesManager
                 .getAllClientsSubscribeService(service);
-        ArrayList<ObjectNode> res = new ArrayList<>();
+        ArrayList<JSONObject> res = new ArrayList<>();
         for (String clientId : allClientsSubscribeService) {
             Client client = clientManager.getClient(clientId);
             Subscriber subscriber = client.getSubscriber(service);
             if (!Objects.equals(subscriber.getIp(), ip) || !Objects.equals(port, subscriber.getPort())) {
                 continue;
             }
-            ObjectNode item = JacksonUtils.createEmptyJsonNode();
-            item.put("clientId", clientId);
-            item.put("ip", subscriber.getIp());
-            item.put("port", subscriber.getPort());
-            res.add(item);
+            res.add(
+                    JSONObject.of(
+                            "clientId", clientId,
+                            "ip", subscriber.getIp(),
+                            "port", subscriber.getPort()
+                    )
+            );
         }
         return Result.success(res);
     }

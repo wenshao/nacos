@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.core.cluster;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.ability.ServerAbilities;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.auth.config.AuthConfigs;
@@ -25,7 +26,6 @@ import com.alibaba.nacos.common.model.RestResult;
 import com.alibaba.nacos.common.model.RestResultUtils;
 import com.alibaba.nacos.common.notify.EventPublisher;
 import com.alibaba.nacos.common.notify.NotifyCenter;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.sys.env.EnvUtil;
 import com.alibaba.nacos.sys.utils.ApplicationUtils;
 import org.junit.After;
@@ -220,7 +220,7 @@ public class ServerMemberManagerTest {
         ReflectionTestUtils.setField(serverMemberManager, "asyncRestTemplate", mockAsyncRestTemplate);
         doAnswer(invocationOnMock -> {
             Callback<String> callback = invocationOnMock.getArgument(5);
-            RestResult<String> result = RestResultUtils.success(JacksonUtils.toJson(newMember));
+            RestResult<String> result = RestResultUtils.success(JSON.toJSONString(newMember));
             callback.onReceive(result);
             return null;
         }).when(mockAsyncRestTemplate).post(anyString(), any(), any(), any(), any(), any());

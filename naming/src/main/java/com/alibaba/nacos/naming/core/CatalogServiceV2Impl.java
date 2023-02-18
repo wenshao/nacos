@@ -16,12 +16,12 @@
 
 package com.alibaba.nacos.naming.core;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Cluster;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.constants.FieldsConstants;
 import com.alibaba.nacos.naming.core.v2.ServiceManager;
@@ -35,7 +35,6 @@ import com.alibaba.nacos.naming.pojo.IpAddressInfo;
 import com.alibaba.nacos.naming.pojo.ServiceDetailInfo;
 import com.alibaba.nacos.naming.pojo.ServiceView;
 import com.alibaba.nacos.naming.utils.ServiceUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -79,16 +78,15 @@ public class CatalogServiceV2Impl implements CatalogService {
         Optional<ServiceMetadata> metadata = metadataManager.getServiceMetadata(service);
         ServiceMetadata detailedService = metadata.orElseGet(ServiceMetadata::new);
         
-        ObjectNode serviceObject = JacksonUtils.createEmptyJsonNode();
+        JSONObject serviceObject = new JSONObject();
         serviceObject.put(FieldsConstants.NAME, serviceName);
         serviceObject.put(FieldsConstants.GROUP_NAME, groupName);
         serviceObject.put(FieldsConstants.PROTECT_THRESHOLD, detailedService.getProtectThreshold());
-        serviceObject.replace(FieldsConstants.SELECTOR, JacksonUtils.transferToJsonNode(detailedService.getSelector()));
-        serviceObject.replace(FieldsConstants.METADATA,
-                JacksonUtils.transferToJsonNode(detailedService.getExtendData()));
+        serviceObject.put(FieldsConstants.SELECTOR, detailedService.getSelector());
+        serviceObject.put(FieldsConstants.METADATA, detailedService.getExtendData());
         
-        ObjectNode detailView = JacksonUtils.createEmptyJsonNode();
-        detailView.replace(FieldsConstants.SERVICE, serviceObject);
+        JSONObject detailView = new JSONObject();
+        detailView.put(FieldsConstants.SERVICE, serviceObject);
         
         List<com.alibaba.nacos.api.naming.pojo.Cluster> clusters = new ArrayList<>();
         
@@ -107,7 +105,7 @@ public class CatalogServiceV2Impl implements CatalogService {
             clusters.add(clusterView);
         }
         
-        detailView.replace(FieldsConstants.CLUSTERS, JacksonUtils.transferToJsonNode(clusters));
+        detailView.put(FieldsConstants.CLUSTERS, clusters);
         
         return detailView;
     }
@@ -143,7 +141,7 @@ public class CatalogServiceV2Impl implements CatalogService {
     @Override
     public Object pageListService(String namespaceId, String groupName, String serviceName, int pageNo, int pageSize,
             String instancePattern, boolean ignoreEmptyService) throws NacosException {
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         List<ServiceView> serviceViews = new LinkedList<>();
         Collection<Service> services = patternServices(namespaceId, groupName, serviceName);
         if (ignoreEmptyService) {
@@ -163,7 +161,7 @@ public class CatalogServiceV2Impl implements CatalogService {
             serviceView.setTriggerFlag(isProtectThreshold(serviceView, serviceMetadata) ? "true" : "false");
             serviceViews.add(serviceView);
         }
-        result.set(FieldsConstants.SERVICE_LIST, JacksonUtils.transferToJsonNode(serviceViews));
+        result.put(FieldsConstants.SERVICE_LIST, serviceViews);
         return result;
     }
     

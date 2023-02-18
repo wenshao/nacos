@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
@@ -23,7 +24,6 @@ import com.alibaba.nacos.api.naming.pojo.healthcheck.AbstractHealthChecker;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.HealthCheckType;
 import com.alibaba.nacos.auth.annotation.Secured;
 import com.alibaba.nacos.common.utils.ConvertUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.core.utils.WebUtils;
 import com.alibaba.nacos.naming.core.HealthOperator;
@@ -34,7 +34,6 @@ import com.alibaba.nacos.naming.monitor.MetricsMonitor;
 import com.alibaba.nacos.naming.web.CanDistro;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,7 +72,7 @@ public class HealthController {
      */
     @RequestMapping("/server")
     public ResponseEntity server() {
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         result.put("msg", "Hello! I am Nacos-Naming and healthy! total services: " + MetricsMonitor.getDomCountMonitor()
                 + ", local port:" + EnvUtil.getPort());
         return ResponseEntity.ok(result);

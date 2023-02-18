@@ -16,10 +16,10 @@
 
 package com.alibaba.nacos.naming.core;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.naming.core.v2.metadata.ServiceMetadata;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;
 
@@ -67,7 +67,7 @@ public interface ServiceOperator {
      * @return service detail with cluster info
      * @throws NacosException nacos exception during query
      */
-    ObjectNode queryService(String namespaceId, String serviceName) throws NacosException;
+    JSONObject queryService(String namespaceId, String serviceName) throws NacosException;
     
     /**
      * Page list service name.

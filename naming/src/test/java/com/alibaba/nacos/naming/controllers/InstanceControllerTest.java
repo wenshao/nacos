@@ -16,6 +16,8 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.naming.CommonParams;
 import com.alibaba.nacos.api.naming.pojo.Instance;
@@ -25,14 +27,12 @@ import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.notify.listener.SmartSubscriber;
 import com.alibaba.nacos.common.trace.event.naming.DeregisterInstanceTraceEvent;
 import com.alibaba.nacos.common.trace.event.naming.RegisterInstanceTraceEvent;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.BaseTest;
 import com.alibaba.nacos.naming.core.InstanceOperatorClientImpl;
 import com.alibaba.nacos.naming.core.InstancePatchObject;
 import com.alibaba.nacos.naming.misc.UtilsAndCommons;
 import com.alibaba.nacos.naming.pojo.Subscriber;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -141,13 +141,13 @@ public class InstanceControllerTest extends BaseTest {
         instance.setIp("1.1.1.1");
         instance.setPort(3306);
         List<Instance> mockInstance = Collections.singletonList(instance);
-        String instanceJson = JacksonUtils.toJson(mockInstance);
+        String instanceJson = JSON.toJSONString(mockInstance);
         mockRequestParameter("instances", instanceJson);
         mockRequestParameter("metadata", "{}");
         when(instanceServiceV2.batchUpdateMetadata(eq(Constants.DEFAULT_NAMESPACE_ID), any(), anyMap()))
                 .thenReturn(Collections.singletonList("1.1.1.1:3306:unknown:DEFAULT:ephemeral"));
-        ObjectNode actual = instanceController.batchUpdateInstanceMetadata(request);
-        assertEquals("1.1.1.1:3306:unknown:DEFAULT:ephemeral", actual.get("updated").get(0).textValue());
+        JSONObject actual = instanceController.batchUpdateInstanceMetadata(request);
+        assertEquals("1.1.1.1:3306:unknown:DEFAULT:ephemeral", actual.getJSONArray("updated").getString(0));
     }
     
     @Test
@@ -155,8 +155,8 @@ public class InstanceControllerTest extends BaseTest {
         mockRequestParameter("metadata", "{}");
         when(instanceServiceV2.batchDeleteMetadata(eq(Constants.DEFAULT_NAMESPACE_ID), any(), anyMap()))
                 .thenReturn(Collections.singletonList("1.1.1.1:3306:unknown:DEFAULT:ephemeral"));
-        ObjectNode actual = instanceController.batchDeleteInstanceMetadata(request);
-        assertEquals("1.1.1.1:3306:unknown:DEFAULT:ephemeral", actual.get("updated").get(0).textValue());
+        JSONObject actual = instanceController.batchDeleteInstanceMetadata(request);
+        assertEquals("1.1.1.1:3306:unknown:DEFAULT:ephemeral", actual.getJSONArray("updated").getString(0));
     }
     
     @Test
@@ -194,14 +194,14 @@ public class InstanceControllerTest extends BaseTest {
         instance.setClusterName(UtilsAndCommons.DEFAULT_CLUSTER_NAME);
         when(instanceServiceV2.getInstance(Constants.DEFAULT_NAMESPACE_ID, TEST_GROUP_NAME + "@@" + TEST_SERVICE_NAME,
                 UtilsAndCommons.DEFAULT_CLUSTER_NAME, "1.1.1.1", 3306)).thenReturn(instance);
-        ObjectNode actual = instanceController.detail(request);
-        assertEquals(TEST_GROUP_NAME + "@@" + TEST_SERVICE_NAME, actual.get("service").textValue());
-        assertEquals("1.1.1.1", actual.get("ip").textValue());
-        assertEquals(3306, actual.get("port").intValue());
-        assertEquals(UtilsAndCommons.DEFAULT_CLUSTER_NAME, actual.get("clusterName").textValue());
-        assertEquals(1.0D, actual.get("weight").doubleValue(), 0.1);
-        assertEquals(true, actual.get("healthy").booleanValue());
-        assertEquals("testId", actual.get("instanceId").textValue());
+        JSONObject actual = instanceController.detail(request);
+        assertEquals(TEST_GROUP_NAME + "@@" + TEST_SERVICE_NAME, actual.getString("service"));
+        assertEquals("1.1.1.1", actual.getString("ip"));
+        assertEquals(3306, actual.getIntValue("port"));
+        assertEquals(UtilsAndCommons.DEFAULT_CLUSTER_NAME, actual.getString("clusterName"));
+        assertEquals(1.0D, actual.getDoubleValue("weight"), 0.1);
+        assertEquals(true, actual.getBooleanValue("healthy"));
+        assertEquals("testId", actual.getString("instanceId"));
         assertEquals("{}", actual.get("metadata").toString());
     }
     
@@ -214,9 +214,9 @@ public class InstanceControllerTest extends BaseTest {
         when(instanceServiceV2.getHeartBeatInterval(eq(Constants.DEFAULT_NAMESPACE_ID),
                 eq(TEST_GROUP_NAME + "@@" + TEST_SERVICE_NAME), eq("1.1.1.1"), eq(3306),
                 eq(UtilsAndCommons.DEFAULT_CLUSTER_NAME))).thenReturn(10000L);
-        ObjectNode actual = instanceController.beat(request);
-        assertEquals(200, actual.get("code").intValue());
-        assertEquals(10000L, actual.get("clientBeatInterval").longValue());
-        assertTrue(actual.get("lightBeatEnabled").booleanValue());
+        JSONObject actual = instanceController.beat(request);
+        assertEquals(200, actual.getIntValue("code"));
+        assertEquals(10000L, actual.getLongValue("clientBeatInterval"));
+        assertTrue(actual.getBooleanValue("lightBeatEnabled"));
     }
 }

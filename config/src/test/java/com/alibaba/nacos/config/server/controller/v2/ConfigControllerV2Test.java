@@ -16,14 +16,14 @@
 
 package com.alibaba.nacos.config.server.controller.v2;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.model.v2.ErrorCode;
 import com.alibaba.nacos.api.model.v2.Result;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.config.server.controller.ConfigServletInner;
 import com.alibaba.nacos.config.server.model.ConfigRequestInfo;
 import com.alibaba.nacos.config.server.model.form.ConfigForm;
 import com.alibaba.nacos.config.server.service.ConfigOperationService;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,7 +82,7 @@ public class ConfigControllerV2Test {
             x.getArgument(1, HttpServletResponse.class).setStatus(200);
             x.getArgument(1, HttpServletResponse.class)
                     .setContentType(com.alibaba.nacos.common.http.param.MediaType.APPLICATION_JSON);
-            x.getArgument(1, HttpServletResponse.class).getWriter().print(JacksonUtils.toJson(stringResult));
+            x.getArgument(1, HttpServletResponse.class).getWriter().print(JSON.toJSONString(stringResult));
             return null;
         }).when(inner).doGetConfig(any(HttpServletRequest.class), any(HttpServletResponse.class), eq(TEST_DATA_ID),
                 eq(TEST_GROUP), eq(TEST_NAMESPACE_ID), eq(TEST_TAG), eq(null), anyString(), eq(true));
@@ -91,9 +91,9 @@ public class ConfigControllerV2Test {
         
         verify(inner).doGetConfig(eq(request), eq(response), eq(TEST_DATA_ID), eq(TEST_GROUP), eq(TEST_NAMESPACE_ID),
                 eq(TEST_TAG), eq(null), anyString(), eq(true));
-        JsonNode resNode = JacksonUtils.toObj(response.getContentAsString());
-        Integer errCode = JacksonUtils.toObj(resNode.get("code").toString(), Integer.class);
-        String actContent = JacksonUtils.toObj(resNode.get("data").toString(), String.class);
+        JSONObject resNode = JSON.parseObject(response.getContentAsString());
+        Integer errCode = resNode.getInteger("code");
+        String actContent = resNode.getString("data");
         assertEquals(200, response.getStatus());
         assertEquals(ErrorCode.SUCCESS.getCode(), errCode);
         assertEquals(TEST_CONTENT, actContent);

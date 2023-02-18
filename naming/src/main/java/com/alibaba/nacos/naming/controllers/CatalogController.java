@@ -16,18 +16,17 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
 import com.alibaba.nacos.auth.annotation.Secured;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.core.CatalogService;
 import com.alibaba.nacos.naming.core.CatalogServiceV2Impl;
 import com.alibaba.nacos.naming.misc.UtilsAndCommons;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -78,9 +77,9 @@ public class CatalogController {
      */
     @Secured(action = ActionTypes.READ)
     @RequestMapping(value = "/instances")
-    public ObjectNode instanceList(@RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
-            @RequestParam String serviceName, @RequestParam String clusterName, @RequestParam(name = "pageNo") int page,
-            @RequestParam int pageSize) throws NacosException {
+    public JSONObject instanceList(@RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
+                                   @RequestParam String serviceName, @RequestParam String clusterName, @RequestParam(name = "pageNo") int page,
+                                   @RequestParam int pageSize) throws NacosException {
         String serviceNameWithoutGroup = NamingUtils.getServiceName(serviceName);
         String groupName = NamingUtils.getGroupName(serviceName);
         List<? extends Instance> instances = judgeCatalogService()
@@ -99,9 +98,9 @@ public class CatalogController {
         if (end > instances.size()) {
             end = instances.size();
         }
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
-        result.replace("list", JacksonUtils.transferToJsonNode(instances.subList(start, end)));
+
+        JSONObject result = new JSONObject();
+        result.put("list", instances.subList(start, end));
         result.put("count", instances.size());
         
         return result;

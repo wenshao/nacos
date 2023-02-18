@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.client.naming.remote.gprc;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
 import com.alibaba.nacos.api.naming.pojo.Instance;
@@ -54,7 +55,6 @@ import com.alibaba.nacos.common.remote.client.RpcClient;
 import com.alibaba.nacos.common.remote.client.RpcClientFactory;
 import com.alibaba.nacos.common.remote.client.ServerListFactory;
 import com.alibaba.nacos.common.utils.CollectionUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -276,7 +276,7 @@ public class NamingGrpcClientProxy extends AbstractNamingClientProxy {
         ServiceListRequest request = new ServiceListRequest(namespaceId, groupName, pageNo, pageSize);
         if (selector != null) {
             if (SelectorType.valueOf(selector.getType()) == SelectorType.label) {
-                request.setSelector(JacksonUtils.toJson(selector));
+                request.setSelector(JSON.toJSONString(selector));
             }
         }
         ServiceListResponse response = requestToServer(request, ServiceListResponse.class);

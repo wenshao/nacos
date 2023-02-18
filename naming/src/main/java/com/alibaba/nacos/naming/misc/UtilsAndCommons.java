@@ -16,18 +16,18 @@
 
 package com.alibaba.nacos.naming.misc;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.exception.api.NacosApiException;
 import com.alibaba.nacos.api.model.v2.ErrorCode;
 import com.alibaba.nacos.api.selector.SelectorType;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.common.utils.VersionUtils;
 import com.alibaba.nacos.naming.selector.LabelSelector;
 import com.alibaba.nacos.naming.selector.NoneSelector;
 import com.alibaba.nacos.sys.env.Constants;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.http.HttpStatus;
 
 import java.io.File;
@@ -143,8 +143,8 @@ public class UtilsAndCommons {
             反序列化失败。
          */
         // TODO register in implementation class or remove subType
-        JacksonUtils.registerSubtype(NoneSelector.class, SelectorType.none.name());
-        JacksonUtils.registerSubtype(LabelSelector.class, SelectorType.label.name());
+        JSON.registerSeeAlsoSubType(NoneSelector.class, SelectorType.none.name());
+        JSON.registerSeeAlsoSubType(LabelSelector.class, SelectorType.label.name());
         
     }
     
@@ -164,7 +164,7 @@ public class UtilsAndCommons {
         }
         
         try {
-            metadataMap = JacksonUtils.toObj(metadata, new TypeReference<Map<String, String>>() {
+            metadataMap = JSON.parseObject(metadata, new TypeReference<Map<String, String>>() {
             });
         } catch (Exception e) {
             String[] datas = metadata.split(",");

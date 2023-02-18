@@ -21,10 +21,7 @@ import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Mysql;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Tcp;
 import org.junit.Test;
 
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class HealthCheckTypeTest {
     
@@ -34,23 +31,5 @@ public class HealthCheckTypeTest {
         assertEquals(Http.class, HealthCheckType.ofHealthCheckerClass("HTTP"));
         assertEquals(Mysql.class, HealthCheckType.ofHealthCheckerClass("MYSQL"));
         assertEquals(AbstractHealthChecker.None.class, HealthCheckType.ofHealthCheckerClass("NONE"));
-    }
-    
-    @Test
-    public void testOfHealthCheckerClassForExtendType() {
-        HealthCheckType.registerHealthChecker(TestChecker.TYPE, TestChecker.class);
-        assertEquals(TestChecker.class, HealthCheckType.ofHealthCheckerClass(TestChecker.TYPE));
-    }
-    
-    @Test
-    public void testOfHealthCheckerClassForNonExistType() {
-        assertNull(HealthCheckType.ofHealthCheckerClass("non-exist"));
-    }
-    
-    @Test
-    public void testGetLoadedHealthCheckerClasses() {
-        HealthCheckType.registerHealthChecker(TestChecker.TYPE, TestChecker.class);
-        List<Class<? extends AbstractHealthChecker>> actual = HealthCheckType.getLoadedHealthCheckerClasses();
-        assertEquals(5, actual.size());
     }
 }

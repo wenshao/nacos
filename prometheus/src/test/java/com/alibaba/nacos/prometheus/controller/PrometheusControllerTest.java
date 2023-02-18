@@ -16,10 +16,10 @@
 
 package com.alibaba.nacos.prometheus.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.core.InstanceOperatorClientImpl;
 import com.alibaba.nacos.naming.core.v2.ServiceManager;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
@@ -100,7 +100,7 @@ public class PrometheusControllerTest {
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(ApiConstants.PROMETHEUS_CONTROLLER_PATH);
         MockHttpServletResponse response = mockMvc.perform(builder).andReturn().getResponse();
         Assert.assertEquals(200, response.getStatus());
-        assertEquals(testInstanceList.size(), JacksonUtils.toObj(response.getContentAsString()).size());
+        assertEquals(testInstanceList.size(), JSON.parseArray(response.getContentAsString()).size());
     }
     
 }

@@ -16,13 +16,13 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
 import com.alibaba.nacos.naming.BaseTest;
 import com.alibaba.nacos.naming.core.ServiceOperatorV2Impl;
 import com.alibaba.nacos.naming.core.SubscribeManager;
 import com.alibaba.nacos.naming.pojo.Subscriber;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +63,8 @@ public class ServiceControllerTest extends BaseTest {
         servletRequest.addParameter("pageNo", "1");
         servletRequest.addParameter("pageSize", "10");
         
-        ObjectNode objectNode = serviceController.list(servletRequest);
-        Assert.assertEquals(1, objectNode.get("count").asInt());
+        JSONObject objectNode = serviceController.list(servletRequest);
+        Assert.assertEquals(1, objectNode.getIntValue("count"));
     }
     
     @Test
@@ -92,10 +92,10 @@ public class ServiceControllerTest extends BaseTest {
     @Test
     public void testDetail() {
         try {
-            ObjectNode result = Mockito.mock(ObjectNode.class);
+            JSONObject result = Mockito.mock(JSONObject.class);
             Mockito.when(serviceOperatorV2.queryService(Mockito.anyString(), Mockito.anyString())).thenReturn(result);
-            
-            ObjectNode objectNode = serviceController.detail(TEST_NAMESPACE, TEST_SERVICE_NAME);
+
+            JSONObject objectNode = serviceController.detail(TEST_NAMESPACE, TEST_SERVICE_NAME);
             Assert.assertEquals(result, objectNode);
         } catch (NacosException e) {
             e.printStackTrace();
@@ -124,8 +124,8 @@ public class ServiceControllerTest extends BaseTest {
                     serviceOperatorV2.searchServiceName(Mockito.anyString(), Mockito.anyString()))
                     .thenReturn(Collections.singletonList("result"));
             
-            ObjectNode objectNode = serviceController.searchService(TEST_NAMESPACE, "");
-            Assert.assertEquals(1, objectNode.get("count").asInt());
+            JSONObject objectNode = serviceController.searchService(TEST_NAMESPACE, "");
+            Assert.assertEquals(1, objectNode.getIntValue("count"));
         } catch (NacosException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
@@ -136,9 +136,9 @@ public class ServiceControllerTest extends BaseTest {
                     serviceOperatorV2.searchServiceName(Mockito.anyString(), Mockito.anyString()))
                     .thenReturn(Arrays.asList("re1", "re2"));
             Mockito.when(serviceOperatorV2.listAllNamespace()).thenReturn(Arrays.asList("re1", "re2"));
-            
-            ObjectNode objectNode = serviceController.searchService(null, "");
-            Assert.assertEquals(4, objectNode.get("count").asInt());
+
+            JSONObject objectNode = serviceController.searchService(null, "");
+            Assert.assertEquals(4, objectNode.getIntValue("count"));
         } catch (NacosException e) {
             e.printStackTrace();
             Assert.fail(e.getMessage());
@@ -152,8 +152,8 @@ public class ServiceControllerTest extends BaseTest {
         
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
         servletRequest.addParameter(CommonParams.SERVICE_NAME, TEST_SERVICE_NAME);
-        
-        ObjectNode objectNode = serviceController.subscribers(servletRequest);
-        Assert.assertEquals(1, objectNode.get("count").asInt());
+
+        JSONObject objectNode = serviceController.subscribers(servletRequest);
+        Assert.assertEquals(1, objectNode.getIntValue("count"));
     }
 }

@@ -16,14 +16,14 @@
 
 package com.alibaba.nacos.test.naming;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.Nacos;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.test.base.Params;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -126,15 +126,15 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName).appendParam("namespaceId", "namespace-1")
                         .done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
+        JSONObject json = JSON.parseObject(response.getBody());
         
-        Assert.assertEquals("11.11.11.11", json.get("hosts").get(0).get("ip").asText());
+        Assert.assertEquals("11.11.11.11", json.getJSONArray("hosts").getJSONObject(0).getString("ip"));
         
         response = request(url, Params.newParams().appendParam("serviceName", serviceName).done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        json = JacksonUtils.toObj(response.getBody());
+        json = JSON.parseObject(response.getBody());
         
-        Assert.assertEquals(1, json.get("hosts").size());
+        Assert.assertEquals(1, json.getSize("hosts"));
     }
     
     /**
@@ -160,18 +160,18 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName).appendParam("namespaceId", "namespace-1")
                         .appendParam("groupName", TEST_GROUP_1).done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
+        JSONObject json = JSON.parseObject(response.getBody());
         
-        Assert.assertEquals("11.11.11.11", json.get("hosts").get(0).get("ip").asText());
+        Assert.assertEquals("11.11.11.11", json.getJSONArray("hosts").getJSONObject(0).getString("ip"));
         
         response = request(url,
                 Params.newParams().appendParam("serviceName", serviceName).appendParam("groupName", TEST_GROUP_1)
                         .done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        json = JacksonUtils.toObj(response.getBody());
+        json = JSON.parseObject(response.getBody());
         
-        Assert.assertEquals(1, json.get("hosts").size());
-        Assert.assertEquals("33.33.33.33", json.get("hosts").get(0).get("ip").asText());
+        Assert.assertEquals(1, json.getSize("hosts"));
+        Assert.assertEquals("33.33.33.33", json.getJSONArray("hosts").getJSONObject(0).getString("ip"));
     }
     
     /**
@@ -201,9 +201,9 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName).appendParam("clusters", "c1")
                         .appendParam("healthyOnly", "true").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
-        Assert.assertEquals("33.33.33.33", json.get("hosts").get(0).get("ip").asText());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
+        Assert.assertEquals("33.33.33.33", json.getJSONArray("hosts").getJSONObject(0).getString("ip"));
     }
     
     /**
@@ -234,9 +234,9 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName).appendParam("clusters", "c2")
                         .appendParam("healthyOnly", "true").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
-        Assert.assertEquals("44.44.44.44", json.get("hosts").get(0).get("ip").asText());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
+        Assert.assertEquals("44.44.44.44", json.getJSONArray("hosts").getJSONObject(0).getString("ip"));
     }
     
     /**
@@ -266,17 +266,17 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName) //获取naming中的实例
                         .appendParam("namespaceId", "namespace-1").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
         
         //namespace-2个数
         response = request("/nacos/v1/ns/instance/list",
                 Params.newParams().appendParam("serviceName", serviceName) //获取naming中的实例
                         .appendParam("namespaceId", "namespace-2").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        json = JacksonUtils.toObj(response.getBody());
+        json = JSON.parseObject(response.getBody());
         System.out.println(json);
-        Assert.assertEquals(1, json.get("hosts").size());
+        Assert.assertEquals(1, json.getSize("hosts"));
     }
     
     /**
@@ -304,9 +304,9 @@ public class MultiTenant_InstanceAPI_ITCase {
                         .appendParam("namespaceId", "namespace-2").appendParam("groupName", TEST_GROUP_2).done(),
                 String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
-        Assert.assertEquals("8.0", json.get("hosts").get(0).get("weight").asText());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
+        Assert.assertEquals("8.0", json.getJSONArray("hosts").getJSONObject(0).getString("weight"));
     }
     
     /**
@@ -343,9 +343,9 @@ public class MultiTenant_InstanceAPI_ITCase {
                         .appendParam("namespaceId", "namespace-2").appendParam("groupName", TEST_GROUP_2).done(),
                 String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
-        Assert.assertEquals("8.0", json.get("hosts").get(0).get("weight").asText());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
+        Assert.assertEquals("8.0", json.getJSONArray("hosts").getJSONObject(0).getString("weight"));
     }
     
     /**
@@ -375,16 +375,16 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName) //获取naming中的实例
                         .appendParam("namespaceId", "namespace-1").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(2, json.get("hosts").size());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(2, json.getSize("hosts"));
         
         //namespace-2个数
         response = request("/nacos/v1/ns/instance/list",
                 Params.newParams().appendParam("serviceName", serviceName) //获取naming中的实例
                         .appendParam("namespaceId", "namespace-2").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
+        json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
     }
     
     /**
@@ -413,8 +413,8 @@ public class MultiTenant_InstanceAPI_ITCase {
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
         String body = response.getBody();
         System.out.println("multipleTenant_group_updateInstance_notExsitInstance received body:  " + body);
-        JsonNode json = JacksonUtils.toObj(body);
-        Assert.assertEquals("33.33.33.33", json.get("hosts").get(0).get("ip").asText());
+        JSONObject json = JSON.parseObject(body);
+        Assert.assertEquals("33.33.33.33", json.getJSONArray("hosts").getJSONObject(0).getString("ip"));
     }
     
     /**
@@ -443,16 +443,16 @@ public class MultiTenant_InstanceAPI_ITCase {
                 Params.newParams().appendParam("serviceName", serviceName) //获取naming中的实例
                         .appendParam("namespaceId", "namespace-1").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
         
         //namespace-2个数
         response = request("/nacos/v1/ns/instance/list",
                 Params.newParams().appendParam("serviceName", serviceName) //获取naming中的实例
                         .appendParam("namespaceId", "namespace-2").done(), String.class);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(1, json.get("hosts").size());
+        json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(1, json.getSize("hosts"));
     }
     
     private void verifyInstanceListForNaming(NamingService naming, int size, String serviceName) throws Exception {

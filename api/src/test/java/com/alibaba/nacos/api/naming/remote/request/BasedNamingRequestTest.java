@@ -16,9 +16,6 @@
 
 package com.alibaba.nacos.api.naming.remote.request;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.BeforeClass;
 
 import static com.alibaba.nacos.api.common.Constants.Naming.NAMING_MODULE;
@@ -32,14 +29,9 @@ public abstract class BasedNamingRequestTest {
     protected static final String GROUP = "group";
     
     protected static final String NAMESPACE = "namespace";
-    
-    protected static ObjectMapper mapper;
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
     
     protected void injectNamingRequestBasedInfo(AbstractNamingRequest request) {

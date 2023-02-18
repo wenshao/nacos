@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.plugin.control.connection.nacos;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.plugin.control.Loggers;
 import com.alibaba.nacos.plugin.control.connection.ConnectionControlManager;
 import com.alibaba.nacos.plugin.control.connection.request.ConnectionCheckRequest;
@@ -44,7 +44,7 @@ public class NacosConnectionControlManager extends ConnectionControlManager {
     public void applyConnectionLimitRule(ConnectionControlRule connectionControlRule) {
         super.connectionControlRule = connectionControlRule;
         Loggers.CONTROL.info("Connection control rule updated to ->" + (this.connectionControlRule == null ? null
-                : JacksonUtils.toJson(this.connectionControlRule)));
+                : JSON.toJSONString(this.connectionControlRule)));
         
     }
     

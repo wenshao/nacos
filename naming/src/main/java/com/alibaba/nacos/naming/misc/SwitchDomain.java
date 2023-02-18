@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.naming.misc;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.naming.pojo.Record;
 import org.springframework.stereotype.Component;
 
@@ -391,7 +391,7 @@ public class SwitchDomain implements Record, Cloneable {
     
     @Override
     public String toString() {
-        return JacksonUtils.toJson(this);
+        return JSON.toJSONString(this);
     }
     
     @Override

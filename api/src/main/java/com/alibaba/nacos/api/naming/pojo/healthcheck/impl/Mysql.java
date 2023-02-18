@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck.impl;
 
+import com.alibaba.fastjson2.annotation.JSONType;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.AbstractHealthChecker;
 import com.alibaba.nacos.api.utils.StringUtils;
 
@@ -26,6 +27,7 @@ import java.util.Objects;
  *
  * @author yangyi
  */
+@JSONType(typeName = "MYSQL")
 public class Mysql extends AbstractHealthChecker {
     
     public static final String TYPE = "MYSQL";

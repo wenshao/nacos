@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.client.naming.utils;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.SystemPropertyKeyConst;
 import com.alibaba.nacos.api.common.Constants;
@@ -28,7 +29,6 @@ import com.alibaba.nacos.client.utils.LogUtils;
 import com.alibaba.nacos.client.utils.ParamUtil;
 import com.alibaba.nacos.client.utils.TemplateUtils;
 import com.alibaba.nacos.client.utils.TenantUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 
 /**
@@ -151,7 +151,7 @@ public class InitUtils {
      */
     public static void initSerialization() {
         // TODO register in implementation class or remove subType
-        JacksonUtils.registerSubtype(NoneSelector.class, SelectorType.none.name());
-        JacksonUtils.registerSubtype(ExpressionSelector.class, SelectorType.label.name());
+        JSON.registerSeeAlsoSubType(NoneSelector.class, SelectorType.none.name());
+        JSON.registerSeeAlsoSubType(ExpressionSelector.class, SelectorType.label.name());
     }
 }

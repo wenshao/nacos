@@ -16,11 +16,8 @@
 
 package com.alibaba.nacos.api.naming.remote.response;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -28,20 +25,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class SubscribeServiceResponseTest {
-    
-    protected static ObjectMapper mapper;
-    
+
     @BeforeClass
     public static void setUp() throws Exception {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
     
     @Test
-    public void testSerializeSuccessResponse() throws JsonProcessingException {
+    public void testSerializeSuccessResponse() {
         SubscribeServiceResponse response = new SubscribeServiceResponse(200, null, new ServiceInfo());
-        String json = mapper.writeValueAsString(response);
+        String json = JSON.toJSONString(response);
         assertTrue(json.contains("\"serviceInfo\":{"));
         assertTrue(json.contains("\"resultCode\":200"));
         assertTrue(json.contains("\"errorCode\":0"));
@@ -49,9 +41,9 @@ public class SubscribeServiceResponseTest {
     }
     
     @Test
-    public void testSerializeFailResponse() throws JsonProcessingException {
+    public void testSerializeFailResponse() {
         SubscribeServiceResponse response = new SubscribeServiceResponse(500, "test", null);
-        String json = mapper.writeValueAsString(response);
+        String json = JSON.toJSONString(response);
         assertTrue(json.contains("\"resultCode\":500"));
         assertTrue(json.contains("\"errorCode\":0"));
         assertTrue(json.contains("\"message\":\"test\""));
@@ -59,11 +51,11 @@ public class SubscribeServiceResponseTest {
     }
     
     @Test
-    public void testDeserialize() throws JsonProcessingException {
+    public void testDeserialize() {
         String json = "{\"resultCode\":200,\"errorCode\":0,\"serviceInfo\":{\"cacheMillis\":1000,\"hosts\":[],"
                 + "\"lastRefTime\":0,\"checksum\":\"\",\"allIPs\":false,\"reachProtectionThreshold\":false,"
                 + "\"valid\":true},\"success\":true}";
-        SubscribeServiceResponse response = mapper.readValue(json, SubscribeServiceResponse.class);
+        SubscribeServiceResponse response = JSON.parseObject(json, SubscribeServiceResponse.class);
         assertNotNull(response.getServiceInfo());
     }
     

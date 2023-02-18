@@ -17,6 +17,7 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.naming.cluster.ServerStatus;
 import com.alibaba.nacos.naming.cluster.ServerStatusManager;
 import com.alibaba.nacos.naming.core.DistroMapper;
@@ -30,7 +31,6 @@ import com.alibaba.nacos.naming.misc.SwitchManager;
 import com.alibaba.nacos.naming.monitor.MetricsMonitor;
 import com.alibaba.nacos.sys.env.Constants;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +82,7 @@ public class OperatorControllerTest {
     @Test
     public void testPushState() {
         MetricsMonitor.resetPush();
-        ObjectNode objectNode = operatorController.pushState(true, true);
+        JSONObject objectNode = operatorController.pushState(true, true);
         Assert.assertTrue(objectNode.toString().contains("succeed\":0"));
     }
     
@@ -118,22 +118,22 @@ public class OperatorControllerTest {
         
         MockHttpServletRequest servletRequest = new MockHttpServletRequest();
         servletRequest.addParameter("onlyStatus", "false");
-        ObjectNode objectNode = operatorController.metrics(servletRequest);
+        JSONObject objectNode = operatorController.metrics(servletRequest);
         
-        Assert.assertEquals(1, objectNode.get("responsibleInstanceCount").asInt());
-        Assert.assertEquals(ServerStatus.UP.toString(), objectNode.get("status").asText());
-        Assert.assertEquals(3, objectNode.get("clientCount").asInt());
-        Assert.assertEquals(1, objectNode.get("connectionBasedClientCount").asInt());
-        Assert.assertEquals(1, objectNode.get("ephemeralIpPortClientCount").asInt());
-        Assert.assertEquals(1, objectNode.get("persistentIpPortClientCount").asInt());
-        Assert.assertEquals(1, objectNode.get("responsibleClientCount").asInt());
+        Assert.assertEquals(1, objectNode.getIntValue("responsibleInstanceCount"));
+        Assert.assertEquals(ServerStatus.UP.toString(), objectNode.getString("status"));
+        Assert.assertEquals(3, objectNode.getIntValue("clientCount"));
+        Assert.assertEquals(1, objectNode.getIntValue("connectionBasedClientCount"));
+        Assert.assertEquals(1, objectNode.getIntValue("ephemeralIpPortClientCount"));
+        Assert.assertEquals(1, objectNode.getIntValue("persistentIpPortClientCount"));
+        Assert.assertEquals(1, objectNode.getIntValue("responsibleClientCount"));
     }
     
     @Test
     public void testGetResponsibleServer4Client() {
         Mockito.when(distroMapper.mapSrv(Mockito.anyString())).thenReturn("test");
-        ObjectNode objectNode = operatorController.getResponsibleServer4Client("test", "test");
-        Assert.assertEquals("test", objectNode.get("responsibleServer").asText());
+        JSONObject objectNode = operatorController.getResponsibleServer4Client("test", "test");
+        Assert.assertEquals("test", objectNode.getString("responsibleServer"));
     }
     
     @Test

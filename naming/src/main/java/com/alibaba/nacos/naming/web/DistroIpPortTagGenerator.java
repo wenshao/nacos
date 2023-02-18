@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.naming.web;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.runtime.NacosDeserializationException;
 import com.alibaba.nacos.common.utils.InternetAddressUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.core.utils.ReuseHttpServletRequest;
 import com.alibaba.nacos.naming.healthcheck.RsInfo;
@@ -45,7 +45,7 @@ public class DistroIpPortTagGenerator implements DistroTagGenerator {
             String beatStr = request.getParameter(PARAMETER_BEAT);
             if (StringUtils.isNotBlank(beatStr)) {
                 try {
-                    RsInfo rsInfo = JacksonUtils.toObj(beatStr, RsInfo.class);
+                    RsInfo rsInfo = JSON.parseObject(beatStr, RsInfo.class);
                     ip = rsInfo.getIp();
                     port = String.valueOf(rsInfo.getPort());
                 } catch (NacosDeserializationException ignored) {

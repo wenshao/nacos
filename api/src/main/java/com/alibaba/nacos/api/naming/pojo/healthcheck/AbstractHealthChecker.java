@@ -16,14 +16,13 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck;
 
+import com.alibaba.fastjson2.JSONWriter;
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONType;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.AbstractHealthChecker.None;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Http;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Mysql;
 import com.alibaba.nacos.api.naming.pojo.healthcheck.impl.Tcp;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import java.io.Serializable;
 
@@ -32,16 +31,17 @@ import java.io.Serializable;
  *
  * @author nkorange
  */
-@JsonTypeInfo(use = Id.NAME, property = "type", defaultImpl = None.class)
-@JsonSubTypes({@JsonSubTypes.Type(name = Http.TYPE, value = Http.class),
-        @JsonSubTypes.Type(name = Mysql.TYPE, value = Mysql.class),
-        @JsonSubTypes.Type(name = Tcp.TYPE, value = Tcp.class),
-        @JsonSubTypes.Type(name = None.TYPE, value = None.class)})
+@JSONType(
+        serializeFeatures = JSONWriter.Feature.WriteClassName,
+        typeKey = "type",
+        seeAlso = {Http.class, Mysql.class, Tcp.class, None.class},
+        seeAlsoDefault = None.class
+)
 public abstract class AbstractHealthChecker implements Cloneable, Serializable {
     
     private static final long serialVersionUID = 3848305577423336421L;
     
-    @JsonIgnore
+    @JSONField(serialize = false, deserialize = false)
     protected final String type;
     
     protected AbstractHealthChecker(String type) {

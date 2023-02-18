@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.consistency;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class ProtocolMetaDataTest {
         
         metaData.load(map);
         
-        String json = JacksonUtils.toJson(metaData);
+        String json = JSON.toJSONString(metaData);
         AtomicInteger count = new AtomicInteger(0);
         
         CountDownLatch latch = new CountDownLatch(2);
@@ -63,7 +63,7 @@ public class ProtocolMetaDataTest {
         
         metaData.load(map);
         
-        json = JacksonUtils.toJson(metaData);
+        json = JSON.toJSONString(metaData);
         System.out.println(json);
         
         latch.await(10_000L, TimeUnit.MILLISECONDS);

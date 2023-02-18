@@ -16,12 +16,12 @@
 
 package com.alibaba.nacos.config.server.controller;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.model.v2.ErrorCode;
 import com.alibaba.nacos.api.model.v2.Result;
 import com.alibaba.nacos.common.constant.HttpHeaderConsts;
 import com.alibaba.nacos.common.http.param.MediaType;
 import com.alibaba.nacos.common.utils.IoUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.Pair;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.config.server.constant.Constants;
@@ -287,7 +287,7 @@ public class ConfigServletInner {
                             .decryptHandler(dataId, configInfoBase.getEncryptedDataKey(), configInfoBase.getContent());
                     out = response.getWriter();
                     if (isV2) {
-                        out.print(JacksonUtils.toJson(Result.success(pair.getSecond())));
+                        out.print(JSON.toJSONString(Result.success(pair.getSecond())));
                     } else {
                         out.print(pair.getSecond());
                     }
@@ -300,7 +300,7 @@ public class ConfigServletInner {
                     String decryptContent = pair.getSecond();
                     out = response.getWriter();
                     if (isV2) {
-                        out.print(JacksonUtils.toJson(Result.success(decryptContent)));
+                        out.print(JSON.toJSONString(Result.success(decryptContent)));
                     } else {
                         out.print(decryptContent);
                     }
@@ -351,7 +351,7 @@ public class ConfigServletInner {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         PrintWriter writer = response.getWriter();
         if (isV2) {
-            writer.println(JacksonUtils.toJson(Result.failure(ErrorCode.RESOURCE_NOT_FOUND, "config data not exist")));
+            writer.println(JSON.toJSONString(Result.failure(ErrorCode.RESOURCE_NOT_FOUND, "config data not exist")));
         } else {
             writer.println("config data not exist");
         }
@@ -362,7 +362,7 @@ public class ConfigServletInner {
         response.setStatus(HttpServletResponse.SC_CONFLICT);
         PrintWriter writer = response.getWriter();
         if (isV2) {
-            writer.println(JacksonUtils.toJson(Result
+            writer.println(JSON.toJSONString(Result
                     .failure(ErrorCode.RESOURCE_CONFLICT, "requested file is being modified, please try later.")));
         } else {
             writer.println("requested file is being modified, please try later.");

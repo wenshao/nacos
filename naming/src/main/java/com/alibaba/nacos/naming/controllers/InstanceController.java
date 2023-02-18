@@ -16,6 +16,10 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.CommonParams;
@@ -28,7 +32,6 @@ import com.alibaba.nacos.common.trace.DeregisterInstanceReason;
 import com.alibaba.nacos.common.trace.event.naming.DeregisterInstanceTraceEvent;
 import com.alibaba.nacos.common.trace.event.naming.RegisterInstanceTraceEvent;
 import com.alibaba.nacos.common.utils.ConvertUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.core.utils.WebUtils;
 import com.alibaba.nacos.naming.core.InstanceOperator;
@@ -46,9 +49,6 @@ import com.alibaba.nacos.naming.pojo.instance.HttpRequestInstanceBuilder;
 import com.alibaba.nacos.naming.pojo.instance.InstanceExtensionHandler;
 import com.alibaba.nacos.naming.web.CanDistro;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -172,7 +172,7 @@ public class InstanceController {
     @CanDistro
     @PutMapping(value = "/metadata/batch")
     @Secured(action = ActionTypes.WRITE)
-    public ObjectNode batchUpdateInstanceMetadata(HttpServletRequest request) throws Exception {
+    public JSONObject batchUpdateInstanceMetadata(HttpServletRequest request) throws Exception {
         final String namespaceId = WebUtils
                 .optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
         String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
@@ -185,13 +185,7 @@ public class InstanceController {
         
         List<String> operatedInstances = getInstanceOperator()
                 .batchUpdateMetadata(namespaceId, instanceOperationInfo, targetMetadata);
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
-        ArrayNode ipArray = JacksonUtils.createEmptyArrayNode();
-        for (String ip : operatedInstances) {
-            ipArray.add(ip);
-        }
-        result.replace("updated", ipArray);
-        return result;
+        return JSONObject.of("updated", new JSONArray(operatedInstances));
     }
     
     /**
@@ -205,7 +199,7 @@ public class InstanceController {
     @CanDistro
     @DeleteMapping("/metadata/batch")
     @Secured(action = ActionTypes.WRITE)
-    public ObjectNode batchDeleteInstanceMetadata(HttpServletRequest request) throws Exception {
+    public JSONObject batchDeleteInstanceMetadata(HttpServletRequest request) throws Exception {
         final String namespaceId = WebUtils
                 .optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
         String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
@@ -217,14 +211,8 @@ public class InstanceController {
         InstanceOperationInfo instanceOperationInfo = buildOperationInfo(serviceName, consistencyType, targetInstances);
         List<String> operatedInstances = getInstanceOperator()
                 .batchDeleteMetadata(namespaceId, instanceOperationInfo, targetMetadata);
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
-        ArrayNode ipArray = JacksonUtils.createEmptyArrayNode();
-        for (String ip : operatedInstances) {
-            ipArray.add(ip);
-        }
-        result.replace("updated", ipArray);
-        return result;
+
+        return JSONObject.of("updated", new JSONArray(operatedInstances));
     }
     
     private InstanceOperationInfo buildOperationInfo(String serviceName, String consistencyType,
@@ -241,7 +229,7 @@ public class InstanceController {
     
     private List<Instance> parseBatchInstances(String instances) {
         try {
-            return JacksonUtils.toObj(instances, new TypeReference<List<Instance>>() {
+            return JSON.parseObject(instances, new TypeReference<List<Instance>>() {
             });
         } catch (Exception e) {
             Loggers.SRV_LOG.warn("UPDATE-METADATA: Param 'instances' is illegal, ignore this operation", e);
@@ -327,7 +315,7 @@ public class InstanceController {
      */
     @GetMapping
     @Secured(action = ActionTypes.READ)
-    public ObjectNode detail(HttpServletRequest request) throws Exception {
+    public JSONObject detail(HttpServletRequest request) throws Exception {
         
         String namespaceId = WebUtils.optional(request, CommonParams.NAMESPACE_ID, Constants.DEFAULT_NAMESPACE_ID);
         String serviceName = WebUtils.required(request, CommonParams.SERVICE_NAME);
@@ -338,7 +326,7 @@ public class InstanceController {
         
         com.alibaba.nacos.api.naming.pojo.Instance instance = getInstanceOperator()
                 .getInstance(namespaceId, serviceName, cluster, ip, port);
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         result.put("service", serviceName);
         result.put("ip", ip);
         result.put("port", port);
@@ -346,7 +334,7 @@ public class InstanceController {
         result.put("weight", instance.getWeight());
         result.put("healthy", instance.isHealthy());
         result.put("instanceId", instance.getInstanceId());
-        result.set(METADATA, JacksonUtils.transferToJsonNode(instance.getMetadata()));
+        result.put(METADATA, instance.getMetadata());
         return result;
     }
     
@@ -360,15 +348,15 @@ public class InstanceController {
     @CanDistro
     @PutMapping("/beat")
     @Secured(action = ActionTypes.WRITE)
-    public ObjectNode beat(HttpServletRequest request) throws Exception {
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+    public JSONObject beat(HttpServletRequest request) throws Exception {
+
+        JSONObject result = new JSONObject();
         result.put(SwitchEntry.CLIENT_BEAT_INTERVAL, switchDomain.getClientBeatInterval());
         
         String beat = WebUtils.optional(request, "beat", StringUtils.EMPTY);
         RsInfo clientBeat = null;
         if (StringUtils.isNotBlank(beat)) {
-            clientBeat = JacksonUtils.toObj(beat, RsInfo.class);
+            clientBeat = JSON.parseObject(beat, RsInfo.class);
         }
         String clusterName = WebUtils
                 .optional(request, CommonParams.CLUSTER_NAME, UtilsAndCommons.DEFAULT_CLUSTER_NAME);
@@ -408,7 +396,7 @@ public class InstanceController {
      * @throws NacosException any error during handle
      */
     @RequestMapping("/statuses")
-    public ObjectNode listWithHealthStatus(@RequestParam String key) throws NacosException {
+    public JSONObject listWithHealthStatus(@RequestParam String key) throws NacosException {
         
         String serviceName;
         String namespaceId;
@@ -424,14 +412,12 @@ public class InstanceController {
         
         List<? extends com.alibaba.nacos.api.naming.pojo.Instance> ips = getInstanceOperator()
                 .listAllInstances(namespaceId, serviceName);
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
-        ArrayNode ipArray = JacksonUtils.createEmptyArrayNode();
+
+        JSONArray ipArray = new JSONArray();
         for (com.alibaba.nacos.api.naming.pojo.Instance ip : ips) {
             ipArray.add(ip.toInetAddr() + "_" + ip.isHealthy());
         }
-        result.replace("ips", ipArray);
-        return result;
+        return JSONObject.of("ips", ipArray);
     }
     
     private InstanceOperator getInstanceOperator() {

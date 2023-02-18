@@ -16,8 +16,7 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibaba.fastjson2.JSON;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,9 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class MysqlTest {
-    
-    private ObjectMapper objectMapper;
-    
+
     private Mysql mysql;
     
     @Before
@@ -39,12 +36,11 @@ public class MysqlTest {
         mysql.setUser("user");
         mysql.setPwd("pwd");
         mysql.setCmd("cmd");
-        objectMapper = new ObjectMapper();
     }
     
     @Test
-    public void testSerialize() throws JsonProcessingException {
-        String actual = objectMapper.writeValueAsString(mysql);
+    public void testSerialize() {
+        String actual = JSON.toJSONString(mysql);
         assertTrue(actual.contains("\"user\":\"user\""));
         assertTrue(actual.contains("\"type\":\"MYSQL\""));
         assertTrue(actual.contains("\"pwd\":\"pwd\""));
@@ -54,7 +50,7 @@ public class MysqlTest {
     @Test
     public void testDeserialize() throws IOException {
         String testChecker = "{\"type\":\"MYSQL\",\"user\":\"user\",\"pwd\":\"pwd\",\"cmd\":\"cmd\"}";
-        Mysql actual = objectMapper.readValue(testChecker, Mysql.class);
+        Mysql actual = JSON.parseObject(testChecker, Mysql.class);
         assertEquals("cmd", actual.getCmd());
         assertEquals("pwd", actual.getPwd());
         assertEquals("user", actual.getUser());

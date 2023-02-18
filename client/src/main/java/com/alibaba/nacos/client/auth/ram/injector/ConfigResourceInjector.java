@@ -16,6 +16,8 @@
 
 package com.alibaba.nacos.client.auth.ram.injector;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.exception.runtime.NacosRuntimeException;
 import com.alibaba.nacos.plugin.auth.api.LoginIdentityContext;
@@ -29,9 +31,7 @@ import com.alibaba.nacos.client.utils.LogUtils;
 import com.alibaba.nacos.common.http.HttpRestResult;
 import com.alibaba.nacos.common.http.param.Header;
 import com.alibaba.nacos.common.http.param.Query;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -84,7 +84,7 @@ public class ConfigResourceInjector extends AbstractResourceInjector {
             }
         }
         String stsResponse = getStsResponse();
-        stsCredential = JacksonUtils.toObj(stsResponse, new TypeReference<StsCredential>() {
+        stsCredential = JSON.parseObject(stsResponse, new TypeReference<StsCredential>() {
         });
         LOGGER.info("[getSTSCredential] code:{}, accessKeyId:{}, lastUpdated:{}, expiration:{}",
                 stsCredential.getCode(), stsCredential.getAccessKeyId(), stsCredential.getLastUpdated(),

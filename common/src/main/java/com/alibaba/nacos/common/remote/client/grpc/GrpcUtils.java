@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.common.remote.client.grpc;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.grpc.auto.Metadata;
 import com.alibaba.nacos.api.grpc.auto.Payload;
@@ -25,8 +26,6 @@ import com.alibaba.nacos.api.remote.response.Response;
 import com.alibaba.nacos.api.utils.NetUtils;
 import com.alibaba.nacos.common.remote.PayloadRegistry;
 import com.alibaba.nacos.common.remote.exception.RemoteException;
-import com.alibaba.nacos.common.utils.JacksonUtils;
-import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.UnsafeByteOperations;
@@ -96,7 +95,7 @@ public class GrpcUtils {
      * @return payload.
      */
     public static Payload convert(Response response) {
-        byte[] jsonBytes = JacksonUtils.toJsonBytes(response);
+        byte[] jsonBytes = JSON.toJSONBytes(response);
         
         Metadata.Builder metaBuilder = Metadata.newBuilder().setType(response.getClass().getSimpleName());
         return Payload.newBuilder()
@@ -107,7 +106,7 @@ public class GrpcUtils {
     private static byte[] convertRequestToByte(Request request) {
         Map<String, String> requestHeaders = new HashMap<>(request.getHeaders());
         request.clearHeaders();
-        byte[] jsonBytes = JacksonUtils.toJsonBytes(request);
+        byte[] jsonBytes = JSON.toJSONBytes(request);
         request.putAllHeader(requestHeaders);
         return jsonBytes;
     }
@@ -123,7 +122,7 @@ public class GrpcUtils {
         if (classType != null) {
             ByteString byteString = payload.getBody().getValue();
             ByteBuffer byteBuffer = byteString.asReadOnlyByteBuffer();
-            Object obj = JacksonUtils.toObj(new ByteBufferBackedInputStream(byteBuffer), classType);
+            Object obj = JSON.parseObject(byteBuffer, classType);
             if (obj instanceof Request) {
                 ((Request) obj).putAllHeader(payload.getMetadata().getHeadersMap());
             }

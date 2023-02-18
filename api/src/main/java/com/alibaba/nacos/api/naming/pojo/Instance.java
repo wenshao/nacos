@@ -19,8 +19,6 @@ package com.alibaba.nacos.api.naming.pojo;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.naming.PreservedMetadataKeys;
 import com.alibaba.nacos.api.naming.utils.NamingUtils;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import java.util.Objects;
  *
  * @author nkorange
  */
-@JsonInclude(Include.NON_NULL)
 public class Instance implements Serializable {
     
     private static final long serialVersionUID = -742906310567291979L;

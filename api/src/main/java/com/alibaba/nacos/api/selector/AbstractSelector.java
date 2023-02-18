@@ -16,9 +16,8 @@
 
 package com.alibaba.nacos.api.selector;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.alibaba.fastjson2.annotation.JSONType;
 
 import java.io.Serializable;
 
@@ -28,7 +27,7 @@ import java.io.Serializable;
  * @author nkorange
  * @since 0.7.0
  */
-@JsonTypeInfo(use = Id.NAME, property = "type", defaultImpl = NoneSelector.class)
+@JSONType(typeKey = "type", seeAlso = NoneSelector.class)
 public abstract class AbstractSelector implements Serializable {
     
     private static final long serialVersionUID = 4530233098102379229L;
@@ -36,13 +35,13 @@ public abstract class AbstractSelector implements Serializable {
     /**
      * The type of this selector, each child class should announce its own unique type.
      */
-    @JsonIgnore
+    @JSONField(serialize = false, deserialize = false)
     private final String type;
     
     protected AbstractSelector(String type) {
         this.type = type;
     }
-    
+
     public String getType() {
         return type;
     }

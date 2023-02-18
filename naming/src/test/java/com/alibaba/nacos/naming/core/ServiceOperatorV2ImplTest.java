@@ -17,6 +17,7 @@
 
 package com.alibaba.nacos.naming.core;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.naming.constants.FieldsConstants;
@@ -27,7 +28,6 @@ import com.alibaba.nacos.naming.core.v2.metadata.NamingMetadataManager;
 import com.alibaba.nacos.naming.core.v2.metadata.NamingMetadataOperateService;
 import com.alibaba.nacos.naming.core.v2.metadata.ServiceMetadata;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -123,12 +123,12 @@ public class ServiceOperatorV2ImplTest {
         Mockito.when(metadataManager.getServiceMetadata(Mockito.any())).thenReturn(Optional.of(metadata));
         
         Mockito.when(serviceStorage.getClusters(Mockito.any())).thenReturn(Collections.singleton("D"));
-        
-        ObjectNode objectNode = serviceOperatorV2.queryService("A", "B@@C");
+
+        JSONObject objectNode = serviceOperatorV2.queryService("A", "B@@C");
     
-        Assert.assertEquals("A", objectNode.get(FieldsConstants.NAME_SPACE_ID).asText());
-        Assert.assertEquals("C", objectNode.get(FieldsConstants.NAME).asText());
-        Assert.assertEquals(1, objectNode.get(FieldsConstants.CLUSTERS).size());
+        Assert.assertEquals("A", objectNode.getString(FieldsConstants.NAME_SPACE_ID));
+        Assert.assertEquals("C", objectNode.getString(FieldsConstants.NAME));
+        Assert.assertEquals(1, objectNode.getJSONArray(FieldsConstants.CLUSTERS).size());
     }
     
     @Test

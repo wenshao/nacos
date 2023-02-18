@@ -16,15 +16,14 @@
 
 package com.alibaba.nacos.prometheus.controller;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.naming.core.InstanceOperatorClientImpl;
 import com.alibaba.nacos.naming.core.v2.ServiceManager;
 import com.alibaba.nacos.naming.core.v2.pojo.Service;
 import com.alibaba.nacos.prometheus.api.ApiConstants;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
@@ -63,7 +62,7 @@ public class PrometheusController {
      */
     @GetMapping(value = ApiConstants.PROMETHEUS_CONTROLLER_PATH, produces = "application/json; charset=UTF-8")
     public ResponseEntity metric() throws NacosException {
-        ArrayNode arrayNode = JacksonUtils.createEmptyArrayNode();
+        JSONArray arrayNode = new JSONArray();
         Set<Instance> targetSet = new HashSet<>();
         Set<String> allNamespaces = serviceManager.getAllNamespaces();
         for (String namespace : allNamespaces) {
@@ -81,9 +80,9 @@ public class PrometheusController {
         }
         Map<String, List<Instance>> groupingInsMap = targetSet.stream().collect(groupingBy(Instance::getClusterName));
         groupingInsMap.forEach((key, value) -> {
-            ObjectNode jsonNode = JacksonUtils.createEmptyJsonNode();
-            ArrayNode targetsNode = JacksonUtils.createEmptyArrayNode();
-            ObjectNode labelNode = JacksonUtils.createEmptyJsonNode();
+            JSONObject jsonNode = new JSONObject();
+            JSONArray targetsNode = new JSONArray();
+            JSONObject labelNode = new JSONObject();
             value.forEach(e -> {
                 targetsNode.add(e.getIp() + ":" + e.getPort());
             });

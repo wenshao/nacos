@@ -16,11 +16,11 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.naming.core.CatalogServiceV2Impl;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +77,7 @@ public class CatalogControllerTest {
         when(catalogServiceV2
                 .listInstances(Constants.DEFAULT_NAMESPACE_ID, TEST_GROUP_NAME, TEST_SERVICE_NAME, TEST_CLUSTER_NAME))
                 .thenReturn(list);
-        ObjectNode result = catalogController.instanceList(Constants.DEFAULT_NAMESPACE_ID,
+        JSONObject result = catalogController.instanceList(Constants.DEFAULT_NAMESPACE_ID,
                 TEST_GROUP_NAME + Constants.SERVICE_INFO_SPLITER + TEST_SERVICE_NAME, TEST_CLUSTER_NAME, 1, 10);
         String actual = result.toString();
         assertTrue(actual.contains("\"count\":1"));

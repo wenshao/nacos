@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.config.server.controller;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.config.server.model.GroupkeyListenserStatus;
 import com.alibaba.nacos.config.server.model.SampleResult;
@@ -84,7 +84,7 @@ public class ListenerControllerTest {
                 .param("tenant", "test").param("sampleTime", "1");
         
         String actualValue = mockmvc.perform(builder).andReturn().getResponse().getContentAsString();
-        GroupkeyListenserStatus groupkeyListenserStatus = JacksonUtils.toObj(actualValue, GroupkeyListenserStatus.class);
+        GroupkeyListenserStatus groupkeyListenserStatus = JSON.parseObject(actualValue, GroupkeyListenserStatus.class);
         Map<String, String> resultMap = groupkeyListenserStatus.getLisentersGroupkeyStatus();
         
         Assert.assertEquals(map.get("test"), resultMap.get("test"));

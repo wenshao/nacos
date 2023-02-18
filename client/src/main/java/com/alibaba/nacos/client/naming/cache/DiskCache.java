@@ -16,11 +16,11 @@
 
 package com.alibaba.nacos.client.naming.cache;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 
 import java.io.BufferedReader;
@@ -66,7 +66,7 @@ public class DiskCache {
             String json = dom.getJsonFromServer();
             
             if (StringUtils.isEmpty(json)) {
-                json = JacksonUtils.toJson(dom);
+                json = JSON.toJSONString(dom);
             }
             
             keyContentBuffer.append(json);
@@ -126,10 +126,10 @@ public class DiskCache {
                                     continue;
                                 }
                                 
-                                newFormat = JacksonUtils.toObj(json, ServiceInfo.class);
+                                newFormat = JSON.parseObject(json, ServiceInfo.class);
                                 
                                 if (StringUtils.isEmpty(newFormat.getName())) {
-                                    ips.add(JacksonUtils.toObj(json, Instance.class));
+                                    ips.add(JSON.parseObject(json, Instance.class));
                                 }
                             } catch (Throwable e) {
                                 NAMING_LOGGER.error("[NA] error while parsing cache file: " + json, e);

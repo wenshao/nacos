@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.plugin.auth.impl.controller;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.auth.config.AuthConfigs;
 import com.alibaba.nacos.plugin.auth.exception.AccessException;
 import com.alibaba.nacos.plugin.auth.impl.authenticate.IAuthenticationManager;
@@ -24,7 +25,6 @@ import com.alibaba.nacos.plugin.auth.impl.constant.AuthSystemTypes;
 import com.alibaba.nacos.plugin.auth.impl.token.TokenManagerDelegate;
 import com.alibaba.nacos.plugin.auth.impl.users.NacosUser;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -92,7 +92,7 @@ public class UserControllerTest {
         when(authConfigs.getNacosAuthSystemType()).thenReturn(AuthSystemTypes.NACOS.name());
         when(tokenManagerDelegate.getTokenTtlInSeconds(anyString())).thenReturn(18000L);
         Object actual = userController.login("nacos", "nacos", response, request);
-        assertTrue(actual instanceof JsonNode);
+        assertTrue(actual instanceof JSONObject);
         String actualString = actual.toString();
         assertTrue(actualString.contains("\"accessToken\":\"1234567890\""));
         assertTrue(actualString.contains("\"tokenTtl\":18000"));

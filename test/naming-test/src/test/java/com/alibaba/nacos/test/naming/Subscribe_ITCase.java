@@ -15,6 +15,8 @@
  */
 package com.alibaba.nacos.test.naming;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.Nacos;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
@@ -23,9 +25,7 @@ import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.common.utils.ConcurrentHashSet;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.test.base.Params;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -228,9 +228,9 @@ public class Subscribe_ITCase extends NamingBase {
             HttpMethod.GET);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        JsonNode body = JacksonUtils.toObj(response.getBody());
+        JSONObject body = JSON.parseObject(response.getBody());
 
-        Assert.assertEquals(1, body.get("subscribers").size());
+        Assert.assertEquals(1, body.getSize("subscribers"));
     
         Properties properties = new Properties();
         properties.setProperty("namingRequestTimeout", "300000");
@@ -258,10 +258,10 @@ public class Subscribe_ITCase extends NamingBase {
             HttpMethod.GET);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
 
-        body = JacksonUtils.toObj(response.getBody());
+        body = JSON.parseObject(response.getBody());
 
         // server will remove duplicate subscriber by ip port service app and so on
-        Assert.assertEquals(1, body.get("subscribers").size());
+        Assert.assertEquals(1, body.getSize("subscribers"));
     }
     
     @Test

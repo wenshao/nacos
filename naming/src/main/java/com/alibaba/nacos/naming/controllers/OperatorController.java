@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.naming.controllers;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.auth.annotation.Secured;
 import com.alibaba.nacos.common.utils.InternetAddressUtil;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.core.utils.WebUtils;
 import com.alibaba.nacos.naming.cluster.ServerStatusManager;
 import com.alibaba.nacos.naming.constants.ClientConstants;
@@ -34,7 +34,6 @@ import com.alibaba.nacos.naming.misc.UtilsAndCommons;
 import com.alibaba.nacos.naming.monitor.MetricsMonitor;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
 import com.alibaba.nacos.sys.env.EnvUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,9 +81,9 @@ public class OperatorController {
      * @return push metric status
      */
     @RequestMapping("/push/state")
-    public ObjectNode pushState(@RequestParam(required = false) boolean detail,
+    public JSONObject pushState(@RequestParam(required = false) boolean detail,
             @RequestParam(required = false) boolean reset) {
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         int failedPushCount = MetricsMonitor.getFailedPushMonitor().get();
         int totalPushCount = MetricsMonitor.getTotalPushMonitor().get();
         result.put("succeed", totalPushCount - failedPushCount);
@@ -95,7 +94,7 @@ public class OperatorController {
             result.put("ratio", 0);
         }
         if (detail) {
-            ObjectNode detailNode = JacksonUtils.createEmptyJsonNode();
+            JSONObject detailNode = new JSONObject();
             detailNode.put("avgPushCost", MetricsMonitor.getAvgPushCostMonitor().get());
             detailNode.put("maxPushCost", MetricsMonitor.getMaxPushCostMonitor().get());
             result.replace("detail", detailNode);
@@ -144,9 +143,9 @@ public class OperatorController {
      * @return metrics information
      */
     @GetMapping("/metrics")
-    public ObjectNode metrics(HttpServletRequest request) {
+    public JSONObject metrics(HttpServletRequest request) {
         boolean onlyStatus = Boolean.parseBoolean(WebUtils.optional(request, "onlyStatus", "true"));
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+        JSONObject result = new JSONObject();
         result.put("status", serverStatusManager.getServerStatus().name());
         if (onlyStatus) {
             return result;
@@ -189,8 +188,8 @@ public class OperatorController {
     }
     
     @GetMapping("/distro/client")
-    public ObjectNode getResponsibleServer4Client(@RequestParam String ip, @RequestParam String port) {
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+    public JSONObject getResponsibleServer4Client(@RequestParam String ip, @RequestParam String port) {
+        JSONObject result = new JSONObject();
         String tag = ip + InternetAddressUtil.IP_PORT_SPLITER + port;
         result.put("responsibleServer", distroMapper.mapSrv(tag));
         return result;

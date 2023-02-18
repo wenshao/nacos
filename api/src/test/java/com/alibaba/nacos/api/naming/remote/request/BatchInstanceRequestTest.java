@@ -16,9 +16,9 @@
 
 package com.alibaba.nacos.api.naming.remote.request;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.remote.NamingRemoteConstants;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -29,23 +29,23 @@ import static org.junit.Assert.assertTrue;
 public class BatchInstanceRequestTest extends BasedNamingRequestTest {
     
     @Test
-    public void testSerialize() throws JsonProcessingException {
+    public void testSerialize() {
         BatchInstanceRequest request = new BatchInstanceRequest(NAMESPACE, SERVICE, GROUP,
                 NamingRemoteConstants.BATCH_REGISTER_INSTANCE, Collections.singletonList(new Instance()));
-        String json = mapper.writeValueAsString(request);
+        String json = JSON.toJSONString(request);
         checkSerializeBasedInfo(json);
         assertTrue(json.contains("\"type\":\"" + NamingRemoteConstants.BATCH_REGISTER_INSTANCE + "\""));
         assertTrue(json.contains("\"instances\":[{"));
     }
     
     @Test
-    public void testDeserialize() throws JsonProcessingException {
+    public void testDeserialize() {
         String json = "{\"headers\":{},\"namespace\":\"namespace\",\"serviceName\":\"service\",\"groupName\":\"group\","
                 + "\"type\":\"batchRegisterInstance\",\"instances\":[{\"port\":0,\"weight\":1.0,\"healthy\":true,"
                 + "\"enabled\":true,\"ephemeral\":true,\"metadata\":{},\"instanceIdGenerator\":\"simple\","
                 + "\"instanceHeartBeatInterval\":5000,\"instanceHeartBeatTimeOut\":15000,\"ipDeleteTimeout\":30000}],"
                 + "\"module\":\"naming\"}";
-        BatchInstanceRequest actual = mapper.readValue(json, BatchInstanceRequest.class);
+        BatchInstanceRequest actual = JSON.parseObject(json, BatchInstanceRequest.class);
         checkNamingRequestBasedInfo(actual);
         assertEquals(NamingRemoteConstants.BATCH_REGISTER_INSTANCE, actual.getType());
         assertEquals(1, actual.getInstances().size());

@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.test.config;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.common.Constants;
@@ -27,7 +28,6 @@ import com.alibaba.nacos.client.config.http.HttpAgent;
 import com.alibaba.nacos.client.config.http.MetricsHttpAgent;
 import com.alibaba.nacos.client.config.http.ServerHttpAgent;
 import com.alibaba.nacos.common.http.HttpRestResult;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.ThreadUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -87,8 +87,8 @@ public abstract class AbstractConfigAPI_CITCase {
             params.put("beta", "true");
             result = agent.httpDelete(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
-            Assert.assertTrue(JacksonUtils.toObj(result.getData()).get("data").booleanValue());
-            Assert.assertTrue(JacksonUtils.toObj(result.getData()).get("data").booleanValue());
+            Assert.assertTrue(JSON.parseObject(result.getData()).getBooleanValue("data"));
+            Assert.assertTrue(JSON.parseObject(result.getData()).getBooleanValue("data"));
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail();
@@ -667,7 +667,7 @@ public abstract class AbstractConfigAPI_CITCase {
             result = agent.httpGet(CONFIG_CONTROLLER_PATH, null, params, agent.getEncode(), TIME_OUT);
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
             
-            Assert.assertEquals(content, JacksonUtils.toObj(result.getData()).get("content").textValue());
+            Assert.assertEquals(content, JSON.parseObject(result.getData()).getString("content"));
         } catch (Exception e) {
             Assert.fail();
         }
@@ -696,7 +696,7 @@ public abstract class AbstractConfigAPI_CITCase {
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
             
             System.out.println(result.getData());
-            Assert.assertFalse(JacksonUtils.toObj(result.getData()).get("data").isNull());
+            Assert.assertNull(JSON.parseObject(result.getData()).get("data"));
             
         } catch (Exception e) {
             Assert.fail();
@@ -731,7 +731,7 @@ public abstract class AbstractConfigAPI_CITCase {
             params.put("beta", "true");
             result = agent.httpGet(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
-            Assert.assertEquals(content, JacksonUtils.toObj(result.getData()).get("data").get("content").textValue());
+            Assert.assertEquals(content, JSON.parseObject(result.getData()).getJSONObject("data").getString("content"));
             // delete data
             result = agent.httpDelete(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
@@ -771,7 +771,7 @@ public abstract class AbstractConfigAPI_CITCase {
             result = agent.httpDelete(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
-            Assert.assertTrue(JacksonUtils.toObj(result.getData()).get("data").booleanValue());
+            Assert.assertTrue(JSON.parseObject(result.getData()).getBooleanValue("data"));
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail();
@@ -803,8 +803,8 @@ public abstract class AbstractConfigAPI_CITCase {
             result = agent.httpGet(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
             
-            Assert.assertTrue(JacksonUtils.toObj(result.getData()).get("totalCount").intValue() >= 1);
-            Assert.assertTrue(JacksonUtils.toObj(result.getData()).get("pageItems").get(0).get("content").textValue()
+            Assert.assertTrue(JSON.parseObject(result.getData()).getIntValue("totalCount") >= 1);
+            Assert.assertTrue(JSON.parseObject(result.getData()).getJSONArray("pageItems").getJSONObject(0).getString("content")
                     .startsWith(content));
         } catch (Exception e) {
             Assert.fail();
@@ -836,9 +836,9 @@ public abstract class AbstractConfigAPI_CITCase {
             result = agent.httpGet(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
-            Assert.assertTrue(JacksonUtils.toObj(result.getData()).get("totalCount").intValue() >= 1);
+            Assert.assertTrue(JSON.parseObject(result.getData()).getIntValue("totalCount") >= 1);
             Assert.assertEquals(content,
-                    JacksonUtils.toObj(result.getData()).get("pageItems").get(0).get("content").textValue());
+                    JSON.parseObject(result.getData()).getJSONArray("pageItems").getJSONObject(0).getString("content"));
             
         } catch (Exception e) {
             Assert.fail();
@@ -870,9 +870,9 @@ public abstract class AbstractConfigAPI_CITCase {
             result = agent.httpGet(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
-            Assert.assertEquals(1, JacksonUtils.toObj(result.getData()).get("totalCount").intValue());
+            Assert.assertEquals(1, JSON.parseObject(result.getData()).getIntValue("totalCount"));
             Assert.assertEquals(content,
-                    JacksonUtils.toObj(result.getData()).get("pageItems").get(0).get("content").textValue());
+                    JSON.parseObject(result.getData()).getJSONArray("pageItems").getJSONObject(0).getString("content"));
             
         } catch (Exception e) {
             Assert.fail();
@@ -904,9 +904,9 @@ public abstract class AbstractConfigAPI_CITCase {
             params.put("search", "accurate");
             result = agent.httpGet(CONFIG_CONTROLLER_PATH + "/", null, params, agent.getEncode(), TIME_OUT);
             Assert.assertEquals(HttpURLConnection.HTTP_OK, result.getCode());
-            Assert.assertEquals(1, JacksonUtils.toObj(result.getData()).get("totalCount").intValue());
+            Assert.assertEquals(1, JSON.parseObject(result.getData()).getIntValue("totalCount"));
             Assert.assertEquals(content,
-                    JacksonUtils.toObj(result.getData()).get("pageItems").get(0).get("content").textValue());
+                    JSON.parseObject(result.getData()).getJSONArray("pageItems").getJSONObject(0).getString("content"));
         } catch (Exception e) {
             Assert.fail();
         }

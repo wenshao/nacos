@@ -16,12 +16,11 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.alibaba.fastjson2.annotation.JSONType;
 
+@JSONType(typeName = "TEST")
 public class TestChecker extends AbstractHealthChecker {
     
-    @JsonTypeInfo(use = Id.NAME, property = "type")
     public static final String TYPE = "TEST";
     
     private static final long serialVersionUID = 2472091207760970225L;

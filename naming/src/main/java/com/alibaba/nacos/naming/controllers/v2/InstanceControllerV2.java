@@ -16,6 +16,10 @@
 
 package com.alibaba.nacos.naming.controllers.v2;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.api.annotation.NacosApi;
 import com.alibaba.nacos.api.common.Constants;
 import com.alibaba.nacos.api.exception.NacosException;
@@ -33,7 +37,6 @@ import com.alibaba.nacos.common.notify.NotifyCenter;
 import com.alibaba.nacos.common.trace.DeregisterInstanceReason;
 import com.alibaba.nacos.common.trace.event.naming.DeregisterInstanceTraceEvent;
 import com.alibaba.nacos.common.trace.event.naming.RegisterInstanceTraceEvent;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.naming.core.InstanceOperatorClientImpl;
 import com.alibaba.nacos.naming.core.InstancePatchObject;
@@ -51,9 +54,6 @@ import com.alibaba.nacos.naming.pojo.Subscriber;
 import com.alibaba.nacos.naming.pojo.instance.BeatInfoInstanceBuilder;
 import com.alibaba.nacos.naming.web.CanDistro;
 import com.alibaba.nacos.plugin.auth.constant.ActionTypes;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -198,7 +198,7 @@ public class InstanceControllerV2 {
     
     private List<Instance> parseBatchInstances(String instances) {
         try {
-            return JacksonUtils.toObj(instances, new TypeReference<List<Instance>>() {
+            return JSON.parseObject(instances, new TypeReference<List<Instance>>() {
             });
         } catch (Exception e) {
             Loggers.SRV_LOG.warn("UPDATE-METADATA: Param 'instances' is illegal, ignore this operation", e);
@@ -330,17 +330,17 @@ public class InstanceControllerV2 {
     @CanDistro
     @PutMapping("/beat")
     @Secured(action = ActionTypes.WRITE)
-    public ObjectNode beat(@RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
+    public JSONObject beat(@RequestParam(defaultValue = Constants.DEFAULT_NAMESPACE_ID) String namespaceId,
             @RequestParam String serviceName, @RequestParam(defaultValue = StringUtils.EMPTY) String ip,
             @RequestParam(defaultValue = UtilsAndCommons.DEFAULT_CLUSTER_NAME) String clusterName,
             @RequestParam(defaultValue = "0") Integer port, @RequestParam(defaultValue = StringUtils.EMPTY) String beat)
             throws Exception {
-        
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
+
+        JSONObject result = new JSONObject();
         result.put(SwitchEntry.CLIENT_BEAT_INTERVAL, switchDomain.getClientBeatInterval());
         RsInfo clientBeat = null;
         if (StringUtils.isNotBlank(beat)) {
-            clientBeat = JacksonUtils.toObj(beat, RsInfo.class);
+            clientBeat = JSON.parseObject(beat, RsInfo.class);
         }
         if (clientBeat != null) {
             if (StringUtils.isNotBlank(clientBeat.getCluster())) {
@@ -374,7 +374,7 @@ public class InstanceControllerV2 {
      * @throws NacosException any error during handle
      */
     @RequestMapping("/statuses/{key}")
-    public ObjectNode listWithHealthStatus(@PathVariable String key) throws NacosException {
+    public JSONObject listWithHealthStatus(@PathVariable String key) throws NacosException {
         
         String serviceName;
         String namespaceId;
@@ -390,13 +390,11 @@ public class InstanceControllerV2 {
         
         List<? extends Instance> ips = instanceServiceV2.listAllInstances(namespaceId, serviceName);
         
-        ObjectNode result = JacksonUtils.createEmptyJsonNode();
-        ArrayNode ipArray = JacksonUtils.createEmptyArrayNode();
+        JSONArray ipArray = new JSONArray();
         for (Instance ip : ips) {
             ipArray.add(ip.toInetAddr() + "_" + ip.isHealthy());
         }
-        result.replace("ips", ipArray);
-        return result;
+        return JSONObject.of("ips", ipArray);
     }
     
     private void checkWeight(Double weight) throws NacosException {

@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.plugin.auth.impl.jwt;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.common.utils.StringUtils;
 import com.alibaba.nacos.plugin.auth.exception.AccessException;
 import com.alibaba.nacos.plugin.auth.impl.users.NacosUser;
@@ -127,7 +127,7 @@ public final class NacosSignatureAlgorithm {
         if (!URL_BASE64_ENCODER.encodeToString(bytes).equals(signature)) {
             throw new AccessException("Invalid signature");
         }
-        NacosJwtPayload nacosJwtPayload = JacksonUtils.toObj(URL_BASE64_DECODER.decode(payload), NacosJwtPayload.class);
+        NacosJwtPayload nacosJwtPayload = JSON.parseObject(URL_BASE64_DECODER.decode(payload), NacosJwtPayload.class);
         if (nacosJwtPayload.getExp() >= TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())) {
             return new NacosUser(nacosJwtPayload.getSub());
         }
@@ -179,7 +179,7 @@ public final class NacosSignatureAlgorithm {
         if (!URL_BASE64_ENCODER.encodeToString(bytes).equals(signature)) {
             throw new AccessException("Invalid signature");
         }
-        NacosJwtPayload nacosJwtPayload = JacksonUtils.toObj(URL_BASE64_DECODER.decode(payload), NacosJwtPayload.class);
+        NacosJwtPayload nacosJwtPayload = JSON.parseObject(URL_BASE64_DECODER.decode(payload), NacosJwtPayload.class);
         return nacosJwtPayload.getExp();
     }
     

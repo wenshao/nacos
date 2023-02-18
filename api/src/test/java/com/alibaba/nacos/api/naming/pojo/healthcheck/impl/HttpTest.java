@@ -16,8 +16,7 @@
 
 package com.alibaba.nacos.api.naming.pojo.healthcheck.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibaba.fastjson2.JSON;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,14 +28,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class HttpTest {
-    
-    private ObjectMapper objectMapper;
-    
+
     private Http http;
     
     @Before
     public void setUp() {
-        objectMapper = new ObjectMapper();
         http = new Http();
     }
     
@@ -56,10 +52,10 @@ public class HttpTest {
     }
     
     @Test
-    public void testSerialize() throws JsonProcessingException {
+    public void testSerialize() {
         http.setHeaders("x:a|y:");
         http.setPath("/x");
-        String actual = objectMapper.writeValueAsString(http);
+        String actual = JSON.toJSONString(http);
         assertTrue(actual.contains("\"path\":\"/x\""));
         assertTrue(actual.contains("\"type\":\"HTTP\""));
         assertTrue(actual.contains("\"headers\":\"x:a|y:\""));
@@ -69,7 +65,7 @@ public class HttpTest {
     @Test
     public void testDeserialize() throws IOException {
         String testChecker = "{\"type\":\"HTTP\",\"path\":\"/x\",\"headers\":\"x:a|y:\",\"expectedResponseCode\":200}";
-        Http actual = objectMapper.readValue(testChecker, Http.class);
+        Http actual = JSON.parseObject(testChecker, Http.class);
         assertEquals("x:a|y:", actual.getHeaders());
         assertEquals("/x", actual.getPath());
         assertEquals(200, actual.getExpectedResponseCode());

@@ -16,10 +16,7 @@
 
 package com.alibaba.nacos.api.naming.remote.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.alibaba.fastjson2.JSON;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -30,19 +27,14 @@ import static org.junit.Assert.assertTrue;
 
 public class ServiceListResponseTest {
     
-    protected static ObjectMapper mapper;
-    
     @BeforeClass
     public static void setUp() throws Exception {
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
     
     @Test
-    public void testSerializeSuccessResponse() throws JsonProcessingException {
+    public void testSerializeSuccessResponse() {
         ServiceListResponse response = ServiceListResponse.buildSuccessResponse(10, Collections.singletonList("a"));
-        String json = mapper.writeValueAsString(response);
+        String json = JSON.toJSONString(response);
         assertTrue(json.contains("\"count\":10"));
         assertTrue(json.contains("\"serviceNames\":[\"a\"]"));
         assertTrue(json.contains("\"resultCode\":200"));
@@ -51,9 +43,9 @@ public class ServiceListResponseTest {
     }
     
     @Test
-    public void testSerializeFailResponse() throws JsonProcessingException {
+    public void testSerializeFailResponse() {
         ServiceListResponse response = ServiceListResponse.buildFailResponse("test");
-        String json = mapper.writeValueAsString(response);
+        String json = JSON.toJSONString(response);
         assertTrue(json.contains("\"resultCode\":500"));
         assertTrue(json.contains("\"errorCode\":500"));
         assertTrue(json.contains("\"message\":\"test\""));
@@ -61,9 +53,9 @@ public class ServiceListResponseTest {
     }
     
     @Test
-    public void testDeserialize() throws JsonProcessingException {
+    public void testDeserialize() {
         String json = "{\"resultCode\":200,\"errorCode\":0,\"count\":10,\"serviceNames\":[\"a\"],\"success\":true}";
-        ServiceListResponse response = mapper.readValue(json, ServiceListResponse.class);
+        ServiceListResponse response = JSON.parseObject(json, ServiceListResponse.class);
         assertEquals(10, response.getCount());
         assertEquals(1, response.getServiceNames().size());
         assertEquals("a", response.getServiceNames().get(0));

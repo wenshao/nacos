@@ -16,6 +16,7 @@
 
 package com.alibaba.nacos.test.common;
 
+import com.alibaba.fastjson2.TypeReference;
 import com.alibaba.nacos.Nacos;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.common.http.HttpClientBeanHolder;
@@ -25,7 +26,6 @@ import com.alibaba.nacos.common.http.param.Header;
 import com.alibaba.nacos.common.http.param.Query;
 import com.alibaba.nacos.common.model.RestResult;
 import com.alibaba.nacos.config.server.model.ConfigInfo4Beta;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;

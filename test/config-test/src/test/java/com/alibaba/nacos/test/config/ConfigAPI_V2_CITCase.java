@@ -16,14 +16,14 @@
 
 package com.alibaba.nacos.test.config;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.nacos.Nacos;
-import com.alibaba.nacos.common.utils.JacksonUtils;
 import com.alibaba.nacos.config.server.constant.Constants;
 import com.alibaba.nacos.sys.utils.DiskUtils;
 import com.alibaba.nacos.test.base.ConfigCleanUtils;
 import com.alibaba.nacos.test.base.HttpClient4Test;
 import com.alibaba.nacos.test.base.Params;
-import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -112,8 +112,8 @@ public class ConfigAPI_V2_CITCase extends HttpClient4Test {
                         .appendParam("namespaceId", NAME_SPACE_ID).appendParam("content", CONTENT).done(), String.class,
                 HttpMethod.POST);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(true, json.get("data").asBoolean());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(true, json.getBooleanValue("data"));
         
     }
     
@@ -128,8 +128,8 @@ public class ConfigAPI_V2_CITCase extends HttpClient4Test {
         } else {
             Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
         }
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        return json.get("data").asText();
+        JSONObject json = JSON.parseObject(response.getBody());
+        return json.getString("data");
     }
     
     public void deleteConfig() throws Exception {
@@ -137,8 +137,8 @@ public class ConfigAPI_V2_CITCase extends HttpClient4Test {
                 Params.newParams().appendParam("dataId", DATA_ID).appendParam("group", GROUP)
                         .appendParam("namespaceId", NAME_SPACE_ID).done(), String.class, HttpMethod.DELETE);
         Assert.assertTrue(response.getStatusCode().is2xxSuccessful());
-        JsonNode json = JacksonUtils.toObj(response.getBody());
-        Assert.assertEquals(true, json.get("data").asBoolean());
+        JSONObject json = JSON.parseObject(response.getBody());
+        Assert.assertEquals(true, json.getBooleanValue("data"));
         
     }
     

@@ -16,7 +16,7 @@
 
 package com.alibaba.nacos.naming.cluster.transport;
 
-import com.alibaba.nacos.common.utils.JacksonUtils;
+import com.alibaba.fastjson2.JSON;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,11 +35,11 @@ public class JacksonSerializer implements Serializer {
     
     @Override
     public <T> byte[] serialize(T data) {
-        return JacksonUtils.toJsonBytes(data);
+        return JSON.toJSONBytes(data);
     }
     
     @Override
     public <T> T deserialize(byte[] data, Class<T> clazz) {
-        return JacksonUtils.toObj(data, clazz);
+        return JSON.parseObject(data, clazz);
     }
 }
